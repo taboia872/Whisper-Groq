@@ -21,14 +21,15 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Decode keystore
         run: |
           echo "${{ secrets.WHISPERGROQ_KEYSTORE_BASE64 }}" | base64 -d > $GITHUB_WORKSPACE/keystore.jks
 
       - name: Build Release APK
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleRelease --stacktrace
+        run: gradle assembleRelease --stacktrace --no-daemon
         env:
           KEYSTORE_FILE: keystore.jks
           KEY_ALIAS: whispergroq
