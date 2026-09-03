@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="gsk_..."
-                android:inputType="textVisiblePassword" />
+                android:inputType="textPassword" />
 
             <TextView
                 android:layout_width="wrap_content"

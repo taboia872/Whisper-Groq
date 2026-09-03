@@ -36,54 +36,57 @@ public class WhisperRecognitionService extends RecognitionService {
 
     @Override
     protected void onStartListening(Intent recognizerIntent, Callback callback) {
-        ParcelFileDescriptor audioExtra = recognizerIntent.getParcelableExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE);
-        if (audioExtra != null) {
-            Log.w(TAG, "EXTRA_AUDIO_SOURCE not supported");
+        try {
+            ParcelFileDescriptor audioExtra = recognizerIntent.getParcelableExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE);
+            if (audioExtra != null) {
+                Log.w(TAG, "EXTRA_AUDIO_SOURCE not supported");
+                try {
+                    callback.error(SpeechRecognizer.ERROR_CLIENT);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "callback.error failed", e);
+                }
+                return;
+            }
+
+            checkRecordPermission(callback);
+            initWhisper(callback);
+
+            if (mRecorder != null && mRecorder.isInProgress()) {
+                stopRecording();
+            }
+            mRecorder = new Recorder(this);
+            mRecorder.setListener(message -> {
+                try {
+                    if (message.equals(Recorder.MSG_RECORDING)) {
+                        callback.beginningOfSpeech();
+                        callback.rmsChanged(10);
+                    } else if (message.equals(Recorder.MSG_RECORDING_DONE)) {
+                        HapticFeedback.vibrate(this);
+                        callback.rmsChanged(-20.0f);
+                        startTranscription();
+                    } else if (message.equals(Recorder.MSG_RECORDING_ERROR)) {
+                        callback.error(ERROR_CLIENT);
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "callback failed", e);
+                }
+            });
+
+            if (mWhisper != null && !mWhisper.isInProgress()) {
+                HapticFeedback.vibrate(this);
+                startRecording();
+                try {
+                    callback.readyForSpeech(new Bundle());
+                } catch (RemoteException e) {
+                    Log.e(TAG, "callback.readyForSpeech failed", e);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "onStartListening failed", e);
             try {
                 callback.error(SpeechRecognizer.ERROR_CLIENT);
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-            return;
-        }
-
-        checkRecordPermission(callback);
-
-        initWhisper(callback);
-
-        mRecorder = new Recorder(this);
-        mRecorder.setListener(message -> {
-            if (message.equals(Recorder.MSG_RECORDING)) {
-                try {
-                    callback.beginningOfSpeech();
-                    callback.rmsChanged(10);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            } else if (message.equals(Recorder.MSG_RECORDING_DONE)) {
-                HapticFeedback.vibrate(this);
-                try {
-                    callback.rmsChanged(-20.0f);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-                startTranscription();
-            } else if (message.equals(Recorder.MSG_RECORDING_ERROR)) {
-                try {
-                    callback.error(ERROR_CLIENT);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        if (!mWhisper.isInProgress()) {
-            HapticFeedback.vibrate(this);
-            startRecording();
-            try {
-                callback.readyForSpeech(new Bundle());
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
+            } catch (RemoteException re) {
+                Log.e(TAG, "error callback failed too", re);
             }
         }
     }
@@ -116,18 +119,18 @@ public class WhisperRecognitionService extends RecognitionService {
 
             @Override
             public void onResultReceived(WhisperResult whisperResult) {
-                if (whisperResult.getResult().trim().length() > 0) {
-                    Log.d(TAG, whisperResult.getResult().trim());
-                    try {
+                try {
+                    if (whisperResult.getResult().trim().length() > 0) {
+                        Log.d(TAG, whisperResult.getResult().trim());
                         callback.endOfSpeech();
                         Bundle results = new Bundle();
                         ArrayList<String> resultList = new ArrayList<>();
                         resultList.add(whisperResult.getResult().trim());
                         results.putStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION, resultList);
                         callback.results(results);
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
                     }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "onResult callback failed", e);
                 }
             }
         });
