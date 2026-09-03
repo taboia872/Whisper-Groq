@@ -1,32 +1,57 @@
 # Whisper-Groq
 
-Android voice input (IME + RecognitionService) powered by the **Groq Whisper API** — fast online transcription with zero on-device models.
+Teclado virtual (IME) + serviço de reconhecimento de voz para Android, com transcrição via **API Whisper da Groq** — rápido, sem modelo local, sem necessidade de GPU.
 
-Based on [whisperIMEplus](https://github.com/woheller69/whisperIMEplus) by woheller69 (GPLv3).
+Baseado em [whisperIMEplus](https://github.com/woheller69/whisperIMEplus) por woheller69 (GPLv3).
 
-## Features
+## Funcionalidades
 
-- **Input Method (IME)**: tap microphone to record, tap again to stop → transcription inserted into any text field
-- **RecognitionService**: system-wide voice input
-- **RecognizerIntent activity**: other apps can call it for speech-to-text
-- **Glass UI**: semi-transparent panels, rounded corners, accent colors
-- **Tap-to-record** (no press-and-hold), 30s max, silence detection VAD in auto mode
-- **Punctuation row**: `. , ? !` + Enter + Backspace
-- **Auto language detection** via whisper-large-v3 / whisper-large-v3-turbo / distil-whisper-large-v3-en
-- **No model download** — audio goes to Groq API, user supplies API key
+- **IME (teclado por voz)**: toca no microfone para gravar, toca de novo para parar — a transcrição é inserida direto no campo de texto
+- **RecognitionService**: selecionável como entrada de voz padrão do Android
+- **RecognizerIntent**: outros apps podem chamar via `ACTION_RECOGNIZE_SPEECH`
+- **Visual glass**: painéis semi-transparentes, cantos arredondados, cores Groq
+- **Tap-to-record** (sem segurar o dedo), até 30s, VAD com detecção de silêncio no modo auto
+- **Botões de pontuação**: `. , ? !` + Enter + Backspace
+- **Idioma auto-detectado** pela API Whisper
+- **Nenhum download de modelo** — o áudio é enviado pra Groq, só precisa de uma API key
 
-## Setup
+## Instalação
 
-1. Install the APK
-2. Open **Whisper-Groq Settings** (launcher icon) and paste your **Groq API key** from https://console.groq.com
-3. Pick a model (default: `whisper-large-v3-turbo`)
-4. Enable **Whisper-Groq** as keyboard/voice input in Android settings
+1. Instale o APK da aba Releases
+2. Abra **Whisper-Groq** (ícone no launcher) — ele vai pedir permissão de microfone
+3. Vá em **Configurações** (menu) e cole sua **API key da Groq** de https://console.groq.com
+4. Escolha o modelo Whisper (padrão: `whisper-large-v3-turbo` — melhor custo/latência)
+5. Ative o **Whisper-Groq** em *Configurações → Sistema → Idiomas → Teclado virtual* no Android
 
-## Requirements
+## Modelos Whisper disponíveis
 
-- Internet connection
-- Groq API key (free tier available)
+| Modelo | Idioma | Velocidade | Precisão |
+|---|---|---|---|
+| `whisper-large-v3-turbo` (padrão) | todos | ~8x realtime | ótima |
+| `whisper-large-v3` | todos | ~6x realtime | máxima |
+| `distil-whisper-large-v3-en` | só inglês | mais rápido | boa |
 
-## License
+## Requisitos
 
-GPLv3 — see LICENSE. Original: © woheller69
+- Conexão com internet
+- Chave da API Groq (plano gratuito tem limites generosos)
+
+## Privacidade
+
+- O áudio é gravado apenas quando você toca no microfone (máx 30s por sessão)
+- Enviado via HTTPS para `api.groq.com` — nenhum dado fica no app nem é compartilhado com terceiros além da Groq
+- A API key é armazenada localmente nas SharedPreferences do app
+
+## Build
+
+APK assinado é gerado pelo GitHub Actions quando uma tag `v*` é empurrada. Para build local:
+
+```bash
+./gradlew assembleDebug                    # APK debug (sem assinar)
+export KEYSTORE_FILE=/path/to/keystore.jks # release assinado
+./gradlew assembleRelease
+```
+
+## Licença
+
+GPLv3 — veja LICENSE. Original: © woheller69
