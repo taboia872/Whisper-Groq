@@ -21,11 +21,15 @@ android {
     signingConfigs {
         release {
             def ksFile = System.getenv("KEYSTORE_FILE")
-            if (ksFile != null && new File(ksFile).exists()) {
-                storeFile file(ksFile)
-                keyAlias System.getenv("KEY_ALIAS") ?: "whispergroq"
-                keyPassword System.getenv("KEY_PASSWORD")
-                storePassword System.getenv("STORE_PASSWORD")
+            if (ksFile != null) {
+                def ks = new File(ksFile)
+                if (!ks.isAbsolute()) ks = new File(rootDir, ksFile)
+                if (ks.exists()) {
+                    storeFile ks
+                    keyAlias System.getenv("KEY_ALIAS") ?: "whispergroq"
+                    keyPassword System.getenv("KEY_PASSWORD")
+                    storePassword System.getenv("STORE_PASSWORD")
+                }
             }
         }
     }
