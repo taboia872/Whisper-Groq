@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="voice_input">Entrada de voz Whisper-Groq</string>
+    <string name="need_record_audio_permission">Permissão RECORD_AUDIO não concedida</string>
+    <string name="status">Status:</string>
+    <string name="append">Anexar:</string>
+    <string name="copy_to_clipboard">Copiar</string>
+    <string name="processing">Processando…</string>
+    <string name="processing_done_short">Pronto</string>
+    <string name="please_wait">Aguarde…</string>
+    <string name="instructions">Toque no microfone para gravar, toque novamente para parar. Transcrição via API Whisper da Groq.</string>
+    <string name="auto_button">modo automático</string>
+    <string name="error_no_input">Nenhuma entrada de voz</string>
+    <string name="settings">Configurações</string>
+    <string name="settings_groq">API Groq</string>
+    <string name="settings_api_key_hint">Obtenha sua chave em console.groq.com — ficam salvas localmente.</string>
+    <string name="settings_model">Modelo Whisper</string>
+    <string name="settings_general">Geral</string>
+    <string name="settings_minimum_silence">Silêncio mínimo no modo automático (ms)</string>
+    <string name="setting_bluetooth">Usar dispositivos Bluetooth</string>
+    <string name="stop_button">Parar gravação</string>
+    <string name="whisper_test">Whisper-Groq</string>
+</resources>

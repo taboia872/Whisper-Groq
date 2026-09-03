@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="lightGrey">#DDDDDD</color>
+    <color name="darkGrey">#999999</color>
+    <color name="colorAccent">#B36750A4</color>
+    <color name="colorAccentDark">#ff6750A4</color>
+    <color name="windowBackground">#FAFAFA</color>
+    <!-- Glass theme -->
+    <color name="glass_bg">#B31E1E2E</color>
+    <color name="glass_surface">#40FFFFFF</color>
+    <color name="glass_border">#60FFFFFF</color>
+    <color name="glass_accent">#CC7C6EED</color>
+    <color name="glass_recording">#E0E53935</color>
+    <color name="glass_text">#F0FFFFFF</color>
+</resources>
