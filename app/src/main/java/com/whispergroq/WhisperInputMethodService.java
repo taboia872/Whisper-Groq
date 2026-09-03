@@ -16,6 +16,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -50,7 +51,7 @@ public class WhisperInputMethodService extends InputMethodService {
     private Context mContext;
     private CountDownTimer countDownTimer;
     private boolean modeAuto = false;
-    private LinearLayout layoutButtons;
+    private FrameLayout layoutButtons;
 
     @Override
     public void onCreate() {
@@ -86,15 +87,20 @@ public class WhisperInputMethodService extends InputMethodService {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         View view = getLayoutInflater().inflate(R.layout.voice_service, null);
 
-        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
-            androidx.core.graphics.Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            mlp.leftMargin = insets.left;
-            mlp.bottomMargin = insets.bottom;
-            mlp.rightMargin = insets.right;
-            v.setLayoutParams(mlp);
-            return WindowInsetsCompat.CONSUMED;
-        });
+        // Fallback: don't crash if window insets API fails on weird hosts
+        try {
+            ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+                try {
+                    androidx.core.graphics.Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                    mlp.leftMargin = insets.left;
+                    mlp.bottomMargin = insets.bottom;
+                    mlp.rightMargin = insets.right;
+                    v.setLayoutParams(mlp);
+                } catch (Exception ignored) {}
+                return WindowInsetsCompat.CONSUMED;
+            });
+        } catch (Exception ignored) {}
 
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
@@ -230,22 +236,38 @@ public class WhisperInputMethodService extends InputMethodService {
     }
 
     private void startRecording() {
-        if (modeAuto) mRecorder.initVad();
-        mRecorder.start();
+        try {
+            if (modeAuto) mRecorder.initVad();
+            mRecorder.start();
+        } catch (Exception e) {
+            Log.e(TAG, "startRecording failed", e);
+            try {
+                handler.post(() -> {
+                    tvStatus.setText("Failed to start recording");
+                    tvStatus.setVisibility(View.VISIBLE);
+                });
+            } catch (Exception ignored) {}
+        }
     }
 
     private void startCountdown() {
-        if (countDownTimer != null) countDownTimer.cancel();
-        handler.post(() -> processingBar.setProgress(100));
-        countDownTimer = new CountDownTimer(30000, 1000) {
-            @Override
-            public void onTick(long l) {
-                handler.post(() -> processingBar.setProgress((int) (l / 300)));
-            }
-            @Override
-            public void onFinish() {}
-        };
-        countDownTimer.start();
+        try {
+            if (countDownTimer != null) countDownTimer.cancel();
+            handler.post(() -> processingBar.setProgress(100));
+            countDownTimer = new CountDownTimer(30000, 1000) {
+                @Override
+                public void onTick(long l) {
+                    try {
+                        handler.post(() -> processingBar.setProgress((int) (l / 300)));
+                    } catch (Exception ignored) {}
+                }
+                @Override
+                public void onFinish() {}
+            };
+            countDownTimer.start();
+        } catch (Exception e) {
+            Log.e(TAG, "startCountdown failed", e);
+        }
     }
 
     private void initModel() {

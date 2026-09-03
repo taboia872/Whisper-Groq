@@ -3,14 +3,25 @@
     <color name="black">#FF000000</color>
     <color name="lightGrey">#DDDDDD</color>
     <color name="darkGrey">#999999</color>
-    <color name="colorAccent">#B36750A4</color>
-    <color name="colorAccentDark">#ff6750A4</color>
-    <color name="windowBackground">#FAFAFA</color>
-    <!-- Glass theme -->
-    <color name="glass_bg">#B31E1E2E</color>
-    <color name="glass_surface">#40FFFFFF</color>
-    <color name="glass_border">#60FFFFFF</color>
-    <color name="glass_accent">#CC7C6EED</color>
-    <color name="glass_recording">#E0E53935</color>
-    <color name="glass_text">#F0FFFFFF</color>
+
+    <!-- Groq/Material 3 dark palette -->
+    <color name="colorAccent">#A78BFA</color>
+    <color name="colorAccentDark">#7C3AED</color>
+    <color name="windowBackground">#12101A</color>
+
+    <!-- Surfaces -->
+    <color name="surface_dim">#12101A</color>
+    <color name="surface">#1A1724</color>
+    <color name="surface_bright">#262131</color>
+    <color name="surface_container">#1E1928</color>
+    <color name="surface_container_high">#252030</color>
+
+    <!-- Text -->
+    <color name="text_primary">#F0EEF8</color>
+    <color name="text_secondary">#B8AFCB</color>
+
+    <!-- Accent -->
+    <color name="accent">#A78BFA</color>
+    <color name="accent_container">#5B21B6</color>
+    <color name="recording">#EF4444</color>
 </resources>
