@@ -89,9 +89,9 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;
         setContentView(R.layout.activity_main);
         ThemeUtils.setStatusBarAppearance(this);
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
         checkInputMethodEnabled();
         processingBar = findViewById(R.id.processing_bar);
-        sp = PreferenceManager.getDefaultSharedPreferences(this);
         append = findViewById(R.id.mode_append);
 
         initWhisper();
