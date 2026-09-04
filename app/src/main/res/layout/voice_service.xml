@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:clipToPadding="false"
-    android:padding="6dp">
+    android:padding="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,9 +18,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="false"
-            android:progressTint="@color/accent"
+            android:progressTint="@color/ime_accent"
             android:progressBackgroundTint="@color/surface_container_high"
-            android:indeterminateTint="@color/accent"
+            android:indeterminateTint="@color/ime_accent"
             style="?android:attr/progressBarStyleHorizontal"/>
 
         <TextView
@@ -37,133 +37,75 @@
         <!-- Mic center -->
         <ImageButton
             android:id="@+id/btnRecord"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="6dp"
+            android:layout_marginVertical="8dp"
             android:background="@drawable/kb_mic_button"
-            android:padding="16dp"
+            android:padding="20dp"
             android:src="@drawable/ic_mic_48dp"
             android:contentDescription="@string/record_button"/>
 
-        <!-- Unified bottom row: auto | backspace | . | , | ? | ! | space | enter | keyboard | (stop) -->
+        <!-- Keyboard-style uniform button row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="4dp">
 
             <ImageButton
                 android:id="@+id/btnModeAuto"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/kb_button"
-                android:padding="8dp"
+                style="@style/KbKey"
                 android:src="@drawable/ic_auto_off_36dp"
                 android:contentDescription="@string/auto_button"/>
 
             <ImageButton
+                android:id="@+id/btnKeyboard"
+                style="@style/KbKey"
+                android:src="@drawable/ic_keyboard_36dp"
+                android:contentDescription="@string/exit_button"/>
+
+            <ImageButton
                 android:id="@+id/btnStop"
+                style="@style/KbKey"
                 android:visibility="gone"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/kb_button"
-                android:padding="8dp"
                 android:src="@drawable/ic_stop_recording_36dp"
                 android:contentDescription="@string/stop_button"/>
 
             <ImageButton
-                android:id="@+id/btnKeyboard"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/kb_button"
-                android:padding="8dp"
-                android:src="@drawable/ic_keyboard_36dp"
-                android:contentDescription="@string/exit_button"/>
-
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"/>
-
-            <ImageButton
                 android:id="@+id/btnDel"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/kb_button"
-                android:padding="8dp"
+                style="@style/KbKey"
                 android:src="@drawable/ic_keyboard_del_48dp"
                 android:contentDescription="@string/delete_button"/>
 
             <TextView
                 android:id="@+id/btnPeriod"
-                android:layout_width="36dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/kb_button"
-                android:text="."
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@color/text_primary"/>
+                style="@style/KbKey.Text"
+                android:text="."/>
 
             <TextView
                 android:id="@+id/btnComma"
-                android:layout_width="36dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/kb_button"
-                android:text=","
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@color/text_primary"/>
+                style="@style/KbKey.Text"
+                android:text=","/>
 
             <TextView
                 android:id="@+id/btnQuestion"
-                android:layout_width="36dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/kb_button"
-                android:text="?"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@color/text_primary"/>
+                style="@style/KbKey.Text"
+                android:text="?"/>
 
             <TextView
                 android:id="@+id/btnExclaim"
-                android:layout_width="36dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/kb_button"
-                android:text="!"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@color/text_primary"/>
+                style="@style/KbKey.Text"
+                android:text="!"/>
 
             <TextView
                 android:id="@+id/btnSpace"
-                android:layout_width="72dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/kb_button"
-                android:text="␣"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:textColor="@color/text_primary"/>
+                style="@style/KbKey.Text.Wide"
+                android:text="␣"/>
 
             <ImageButton
                 android:id="@+id/btnEnter"
-                android:layout_width="44dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/kb_button"
-                android:padding="8dp"
+                style="@style/KbKey"
                 android:src="@drawable/ic_keyboard_return_48dp"
                 android:contentDescription="@string/return_button"/>
         </LinearLayout>

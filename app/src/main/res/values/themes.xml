@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base app theme -->
-    <style name="Theme.WhisperGroq" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/accent</item>
-        <item name="colorPrimaryVariant">@color/accent_container</item>
-        <item name="colorSecondary">@color/accent</item>
+    <!-- Base app theme (light) -->
+    <style name="Theme.WhisperGroq" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorPrimaryVariant">@color/colorAccentDark</item>
+        <item name="colorSecondary">@color/colorAccent</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
         <item name="android:windowBackground">@color/windowBackground</item>
-        <item name="android:statusBarColor">@color/windowBackground</item>
+        <item name="android:statusBarColor">@color/surface_container</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 
-    <!-- With an action bar -->
-    <style name="Theme.WhisperGroq.ActionBar" parent="Theme.Material3.DayNight">
-        <item name="colorPrimary">@color/accent</item>
-        <item name="colorPrimaryVariant">@color/accent_container</item>
-        <item name="colorSecondary">@color/accent</item>
+    <!-- Light with action bar -->
+    <style name="Theme.WhisperGroq.ActionBar" parent="Theme.Material3.Light">
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorPrimaryVariant">@color/colorAccentDark</item>
+        <item name="colorSecondary">@color/colorAccent</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
         <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="android:statusBarColor">@color/colorAccentDark</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 
-    <!-- Floating dialog style for RecognizeActivity (plain Material dialog) -->
-    <style name="Theme.WhisperFloating" parent="Theme.Material3.DayNight.Dialog">
-        <item name="colorPrimary">@color/accent</item>
-        <item name="colorSecondary">@color/accent</item>
-        <item name="android:windowBackground">@color/surface</item>
+    <!-- Floating dialog for RecognizeActivity (stays dark for IME overlay) -->
+    <style name="Theme.WhisperFloating" parent="Theme.Material3.Dark.Dialog">
+        <item name="colorPrimary">@color/ime_accent</item>
+        <item name="colorSecondary">@color/ime_accent</item>
+        <item name="colorSurface">@color/ime_surface</item>
+        <item name="colorOnSurface">@color/ime_text_primary</item>
+        <item name="android:windowBackground">@color/ime_surface</item>
     </style>
 
 </resources>
