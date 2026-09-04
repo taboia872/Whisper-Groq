@@ -96,6 +96,14 @@
                 android:textColor="@color/text_secondary"
                 android:text="@string/settings_max_recording_hint" />
 
+            <CheckBox
+                android:id="@+id/mode_bluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/setting_bluetooth"
+                android:textSize="14sp" />
+
             <!-- Visibility toggles for buttons -->
             <TextView
                 android:layout_width="match_parent"
