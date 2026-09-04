@@ -18,7 +18,7 @@
         <item name="android:windowBackground">@color/windowBackground</item>
     </style>
 
-    <!-- Floating dialog style for RecognizeActivity -- use plain Material dialog -->
+    <!-- Floating dialog style for RecognizeActivity (plain Material dialog) -->
     <style name="Theme.WhisperFloating" parent="Theme.Material3.DayNight.Dialog">
         <item name="colorPrimary">@color/accent</item>
         <item name="colorSecondary">@color/accent</item>
