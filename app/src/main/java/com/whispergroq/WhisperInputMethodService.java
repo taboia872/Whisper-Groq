@@ -16,7 +16,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -42,6 +41,7 @@ public class WhisperInputMethodService extends InputMethodService {
     private TextView btnComma;
     private TextView btnQuestion;
     private TextView btnExclaim;
+    private TextView btnSpace;
     private TextView tvStatus;
     private Recorder mRecorder = null;
     private Whisper mWhisper = null;
@@ -51,7 +51,6 @@ public class WhisperInputMethodService extends InputMethodService {
     private Context mContext;
     private CountDownTimer countDownTimer;
     private boolean modeAuto = false;
-    private FrameLayout layoutButtons;
 
     @Override
     public void onCreate() {
@@ -112,9 +111,22 @@ public class WhisperInputMethodService extends InputMethodService {
         btnComma = view.findViewById(R.id.btnComma);
         btnQuestion = view.findViewById(R.id.btnQuestion);
         btnExclaim = view.findViewById(R.id.btnExclaim);
+        btnSpace = view.findViewById(R.id.btnSpace);
         processingBar = view.findViewById(R.id.processing_bar);
         tvStatus = view.findViewById(R.id.tv_status);
-        layoutButtons = view.findViewById(R.id.layout_buttons);
+
+        // Apply visibility toggles from settings
+        boolean showPunctuation = sp.getBoolean("show_punctuation", true);
+        boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
+        boolean showAutoBtn = sp.getBoolean("show_auto_btn", true);
+        int punctVis = showPunctuation ? View.VISIBLE : View.GONE;
+        btnPeriod.setVisibility(punctVis);
+        btnComma.setVisibility(punctVis);
+        btnQuestion.setVisibility(punctVis);
+        btnExclaim.setVisibility(punctVis);
+        btnSpace.setVisibility(punctVis);
+        btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
+        btnModeAuto.setVisibility(showAutoBtn ? View.VISIBLE : View.GONE);
 
         modeAuto = sp.getBoolean("imeModeAuto", false);
         btnModeAuto.setImageResource(modeAuto ? R.drawable.ic_auto_on_36dp : R.drawable.ic_auto_off_36dp);
@@ -144,7 +156,6 @@ public class WhisperInputMethodService extends InputMethodService {
         });
 
         if (modeAuto) {
-            layoutButtons.setVisibility(View.GONE);
             btnStop.setVisibility(View.VISIBLE);
             HapticFeedback.vibrate(this);
             startRecording();
@@ -199,19 +210,17 @@ public class WhisperInputMethodService extends InputMethodService {
         btnModeAuto.setOnClickListener(v -> {
             modeAuto = !modeAuto;
             sp.edit().putBoolean("imeModeAuto", modeAuto).apply();
-            layoutButtons.setVisibility(modeAuto ? View.GONE : View.VISIBLE);
             btnStop.setVisibility(modeAuto ? View.VISIBLE : View.GONE);
             btnModeAuto.setImageResource(modeAuto ? R.drawable.ic_auto_on_36dp : R.drawable.ic_auto_off_36dp);
-            int mode = modeAuto ? 1 : 0;
             Toast.makeText(this, modeAuto ? "Auto mode on" : "Auto mode off", Toast.LENGTH_SHORT).show();
-            switchToPreviousInputMethod();
         });
 
         // Punctuation buttons
-        btnPeriod.setOnClickListener(v -> getCurrentInputConnection().commitText(". ", 1));
+        btnPeriod.setOnClickListener(v -> getCurrentInputConnection().commitText(".", 1));
         btnComma.setOnClickListener(v -> getCurrentInputConnection().commitText(", ", 1));
-        btnQuestion.setOnClickListener(v -> getCurrentInputConnection().commitText("? ", 1));
-        btnExclaim.setOnClickListener(v -> getCurrentInputConnection().commitText("! ", 1));
+        btnQuestion.setOnClickListener(v -> getCurrentInputConnection().commitText("?", 1));
+        btnExclaim.setOnClickListener(v -> getCurrentInputConnection().commitText("!", 1));
+        btnSpace.setOnClickListener(v -> getCurrentInputConnection().commitText(" ", 1));
 
         return view;
     }
@@ -253,12 +262,15 @@ public class WhisperInputMethodService extends InputMethodService {
     private void startCountdown() {
         try {
             if (countDownTimer != null) countDownTimer.cancel();
+            int maxSeconds = sp.getInt("max_recording_seconds", 60);
+            final int maxMs = maxSeconds * 1000;
             handler.post(() -> processingBar.setProgress(100));
-            countDownTimer = new CountDownTimer(30000, 1000) {
+            countDownTimer = new CountDownTimer(maxMs, 1000) {
                 @Override
                 public void onTick(long l) {
                     try {
-                        handler.post(() -> processingBar.setProgress((int) (l / 300)));
+                        int pct = (int)((l * 100) / maxMs);
+                        handler.post(() -> processingBar.setProgress(pct));
                     } catch (Exception ignored) {}
                 }
                 @Override

@@ -24,6 +24,12 @@
     <string name="settings_model">Whisper model</string>
     <string name="settings_general">General</string>
     <string name="settings_minimum_silence">Minimum silence in automatic mode (ms)</string>
+    <string name="settings_max_recording">Maximum recording time (seconds)</string>
+    <string name="settings_max_recording_hint">5–300 seconds. Groq accepts much longer, but longer sessions burn more API credits.</string>
+    <string name="settings_buttons">Buttons</string>
+    <string name="toggle_punctuation">Show punctuation row (. , ? ! space)</string>
+    <string name="toggle_keyboard_button">Show keyboard button</string>
+    <string name="toggle_auto_mode">Show auto-mode toggle in IME</string>
     <string name="setting_bluetooth">Use Bluetooth devices</string>
     <string name="stop_button">Stop recording</string>
     <string name="whisper_test">Whisper-Groq</string>

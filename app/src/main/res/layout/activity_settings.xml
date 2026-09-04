@@ -72,27 +72,59 @@
                 android:valueTo="3000"
                 android:stepSize="100" />
 
-            <LinearLayout
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textSize="16sp"
+                android:textColor="@color/colorAccent"
+                android:text="@string/settings_max_recording" />
+
+            <EditText
+                android:id="@+id/editMaxSeconds"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="start">
+                android:layout_marginTop="4dp"
+                android:inputType="number"
+                android:hint="60" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorAccent"
-                    android:text="@string/setting_bluetooth" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:text="@string/settings_max_recording_hint" />
 
-                <CheckBox
-                    android:id="@+id/mode_bluetooth"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:contentDescription="@string/setting_bluetooth"/>
-            </LinearLayout>
+            <!-- Visibility toggles for buttons -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:textSize="20sp"
+                android:text="@string/settings_buttons" />
+
+            <CheckBox
+                android:id="@+id/togglePunctuation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/toggle_punctuation"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/toggleKeyboard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/toggle_keyboard_button"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/toggleAuto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/toggle_auto_mode"
+                android:textSize="14sp" />
+
         </LinearLayout>
     </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

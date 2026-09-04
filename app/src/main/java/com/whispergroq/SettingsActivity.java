@@ -76,6 +76,28 @@ public class SettingsActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
+        // Silence slider
+        RangeSlider minSilence = findViewById(R.id.settings_min_silence);
+        float silence = sp.getInt("silenceDurationMs", 800);
+        minSilence.setValues(silence);
+        minSilence.addOnChangeListener((slider, value, fromUser) ->
+            sp.edit().putInt("silenceDurationMs", (int) value).apply()
+        );
+
+        // Max recording seconds
+        EditText editMaxSeconds = findViewById(R.id.editMaxSeconds);
+        editMaxSeconds.setText(String.valueOf(sp.getInt("max_recording_seconds", 60)));
+        editMaxSeconds.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                try {
+                    int sec = Integer.parseInt(editMaxSeconds.getText().toString().trim());
+                    if (sec < 5) sec = 5;
+                    if (sec > 300) sec = 300;
+                    sp.edit().putInt("max_recording_seconds", sec).apply();
+                } catch (NumberFormatException ignored) {}
+            }
+        });
+
         // Bluetooth
         CheckBox modeBluetooth = findViewById(R.id.mode_bluetooth);
         modeBluetooth.setChecked(sp.getBoolean("bluetooth", false));
@@ -87,12 +109,23 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        // Silence slider
-        RangeSlider minSilence = findViewById(R.id.settings_min_silence);
-        float silence = sp.getInt("silenceDurationMs", 800);
-        minSilence.setValues(silence);
-        minSilence.addOnChangeListener((slider, value, fromUser) ->
-            sp.edit().putInt("silenceDurationMs", (int) value).apply()
+        // Button visibility toggles
+        CheckBox togglePunctuation = findViewById(R.id.togglePunctuation);
+        togglePunctuation.setChecked(sp.getBoolean("show_punctuation", true));
+        togglePunctuation.setOnCheckedChangeListener((b, checked) ->
+            sp.edit().putBoolean("show_punctuation", checked).apply()
+        );
+
+        CheckBox toggleKeyboard = findViewById(R.id.toggleKeyboard);
+        toggleKeyboard.setChecked(sp.getBoolean("show_keyboard_btn", true));
+        toggleKeyboard.setOnCheckedChangeListener((b, checked) ->
+            sp.edit().putBoolean("show_keyboard_btn", checked).apply()
+        );
+
+        CheckBox toggleAuto = findViewById(R.id.toggleAuto);
+        toggleAuto.setChecked(sp.getBoolean("show_auto_btn", true));
+        toggleAuto.setOnCheckedChangeListener((b, checked) ->
+            sp.edit().putBoolean("show_auto_btn", checked).apply()
         );
 
         checkPermissions();

@@ -148,8 +148,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkInputMethodEnabled() {
-        // Don't auto-redirect — user opened the app intentionally.
-        // Only show a hint via status bar if IME is not enabled.
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         List<InputMethodInfo> enabledInputMethodList = imm.getEnabledInputMethodList();
         String myInputMethodId = getPackageName() + "/.WhisperInputMethodService";
@@ -157,8 +155,16 @@ public class MainActivity extends AppCompatActivity {
         for (InputMethodInfo imi : enabledInputMethodList) {
             if (imi.getId().equals(myInputMethodId)) { enabled = true; break; }
         }
+        boolean wasPromptedBefore = sp.getBoolean("ime_prompt_shown", false);
         if (!enabled) {
-            Toast.makeText(this, "Ative o Whisper-Groq nas configurações de teclado do sistema", Toast.LENGTH_LONG).show();
+            if (!wasPromptedBefore) {
+                // First run — guide user to the system settings
+                sp.edit().putBoolean("ime_prompt_shown", true).apply();
+                Toast.makeText(this, "Ative o Whisper-Groq nas configurações de teclado", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS));
+            } else {
+                Toast.makeText(this, "Ative o Whisper-Groq nas configurações de teclado do sistema", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
