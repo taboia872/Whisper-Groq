@@ -1,15 +1,10 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="36dp"
-    android:height="36dp"
+    android:width="24dp"
+    android:height="24dp"
     android:viewportWidth="960"
     android:viewportHeight="960">
-
+  <!-- Material Symbols: autorenew filled (active) -->
   <path
-      android:pathData="M480,880q-83,0 -156,-31.5T197,763q-54,-54 -85.5,-127T80,480q0,-83 31.5,-156T197,197q54,-54 127,-85.5T480,80q83,0 156,31.5T763,197q54,54 85.5,127T880,480q0,83 -31.5,156T763,763q-54,54 -127,85.5T480,880Z"
-      android:fillColor="@color/colorAccent"
-      android:strokeColor="#FFFFFF" android:strokeLineJoin="round" android:strokeWidth="60"/>
-
-  <path
-      android:pathData="M276,680h76l40,-112h176l40,112h76L520,240h-80L276,680ZM414,504 L478,322h4l64,182L414,504Z"
-      android:fillColor="#FFFFFF"/>
+      android:fillColor="@color/ime_accent"
+      android:pathData="M204,318q48,-63 123,-100.5T480,180q86,0 158.5,32T764,280h76v-196h-60v99q-51,-63 -129,-97.5T480,50q-104,0 -192.5,47.5T184,228M480,880q-86,0 -158.5,-32T196,680h-76v196h60v-99q51,63 129,97.5T480,910q104,0 192.5,-47.5T776,732l-58,-54q-48,63 -123,100.5T480,780Z"/>
 </vector>
