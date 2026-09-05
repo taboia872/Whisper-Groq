@@ -54,12 +54,6 @@
             android:layout_marginTop="4dp">
 
             <ImageButton
-                android:id="@+id/btnModeAuto"
-                style="@style/KbKey"
-                android:src="@drawable/ic_auto_off_36dp"
-                android:contentDescription="@string/auto_button"/>
-
-            <ImageButton
                 android:id="@+id/btnKeyboard"
                 style="@style/KbKey"
                 android:src="@drawable/ic_keyboard_36dp"

@@ -34,7 +34,6 @@ public class WhisperInputMethodService extends InputMethodService {
     private ImageButton btnRecord;
     private ImageButton btnKeyboard;
     private ImageButton btnStop;
-    private ImageButton btnModeAuto;
     private ImageButton btnEnter;
     private ImageButton btnDel;
     private TextView btnPeriod;
@@ -78,20 +77,6 @@ public class WhisperInputMethodService extends InputMethodService {
     @Override
     public void onStartInputView(EditorInfo attribute, boolean restarting){
         if (mWhisper == null) initModel();
-        // Reapply visibility every time we re-open the IME
-        if (btnPeriod != null) {
-            boolean showPunctuation = sp.getBoolean("show_punctuation", true);
-            boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
-            boolean showAutoBtn = sp.getBoolean("show_auto_btn", true);
-            int punctVis = showPunctuation ? View.VISIBLE : View.GONE;
-            btnPeriod.setVisibility(punctVis);
-            btnComma.setVisibility(punctVis);
-            btnQuestion.setVisibility(punctVis);
-            btnExclaim.setVisibility(punctVis);
-            btnSpace.setVisibility(punctVis);
-            btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
-            btnModeAuto.setVisibility(showAutoBtn ? View.VISIBLE : View.GONE);
-        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -118,7 +103,6 @@ public class WhisperInputMethodService extends InputMethodService {
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
         btnStop = view.findViewById(R.id.btnStop);
-        btnModeAuto = view.findViewById(R.id.btnModeAuto);
         btnEnter = view.findViewById(R.id.btnEnter);
         btnDel = view.findViewById(R.id.btnDel);
         btnPeriod = view.findViewById(R.id.btnPeriod);
@@ -132,7 +116,6 @@ public class WhisperInputMethodService extends InputMethodService {
         // Apply visibility toggles from settings
         boolean showPunctuation = sp.getBoolean("show_punctuation", true);
         boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
-        boolean showAutoBtn = sp.getBoolean("show_auto_btn", true);
         int punctVis = showPunctuation ? View.VISIBLE : View.GONE;
         btnPeriod.setVisibility(punctVis);
         btnComma.setVisibility(punctVis);
@@ -140,10 +123,10 @@ public class WhisperInputMethodService extends InputMethodService {
         btnExclaim.setVisibility(punctVis);
         btnSpace.setVisibility(punctVis);
         btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
-        btnModeAuto.setVisibility(showAutoBtn ? View.VISIBLE : View.GONE);
 
-        modeAuto = sp.getBoolean("imeModeAuto", false);
-        btnModeAuto.setImageResource(modeAuto ? R.drawable.ic_auto_on_36dp : R.drawable.ic_auto_off_36dp);
+        Log.d(TAG, "Visibility: punct=" + showPunctuation + " kb=" + showKeyboard);
+
+        modeAuto = false;
         checkRecordPermission();
 
         mRecorder = new Recorder(this);
@@ -175,8 +158,6 @@ public class WhisperInputMethodService extends InputMethodService {
             startRecording();
             startCountdown();
         }
-
-        // Tap-to-record: start/stop on click
         btnRecord.setOnClickListener(v -> {
             if (!checkRecordPermission()) return;
             if (mRecorder.isInProgress()) {
@@ -221,14 +202,6 @@ public class WhisperInputMethodService extends InputMethodService {
             getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
         );
 
-        btnModeAuto.setOnClickListener(v -> {
-            modeAuto = !modeAuto;
-            sp.edit().putBoolean("imeModeAuto", modeAuto).apply();
-            btnStop.setVisibility(modeAuto ? View.VISIBLE : View.GONE);
-            btnModeAuto.setImageResource(modeAuto ? R.drawable.ic_auto_on_36dp : R.drawable.ic_auto_off_36dp);
-            Toast.makeText(this, modeAuto ? "Auto mode on" : "Auto mode off", Toast.LENGTH_SHORT).show();
-        });
-
         // Punctuation buttons
         btnPeriod.setOnClickListener(v -> getCurrentInputConnection().commitText(".", 1));
         btnComma.setOnClickListener(v -> getCurrentInputConnection().commitText(", ", 1));
@@ -260,7 +233,6 @@ public class WhisperInputMethodService extends InputMethodService {
 
     private void startRecording() {
         try {
-            if (modeAuto) mRecorder.initVad();
             mRecorder.start();
         } catch (Exception e) {
             Log.e(TAG, "startRecording failed", e);
@@ -318,10 +290,7 @@ public class WhisperInputMethodService extends InputMethodService {
                 });
                 String result = whisperResult.getResult().trim();
                 if (!result.isEmpty()) {
-                    boolean commitSuccess = getCurrentInputConnection().commitText(result + " ", 1);
-                    if (modeAuto && commitSuccess) {
-                        handler.postDelayed(() -> switchToPreviousInputMethod(), 100);
-                    }
+                    getCurrentInputConnection().commitText(result + " ", 1);
                 }
             }
         });
