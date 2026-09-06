@@ -77,6 +77,18 @@ public class WhisperInputMethodService extends InputMethodService {
     @Override
     public void onStartInputView(EditorInfo attribute, boolean restarting){
         if (mWhisper == null) initModel();
+        // Reapply visibility toggles every time view is shown
+        if (btnPeriod != null) {
+            boolean showPunctuation = sp.getBoolean("show_punctuation", true);
+            boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
+            int punctVis = showPunctuation ? View.VISIBLE : View.GONE;
+            btnPeriod.setVisibility(punctVis);
+            btnComma.setVisibility(punctVis);
+            btnQuestion.setVisibility(punctVis);
+            btnExclaim.setVisibility(punctVis);
+            btnSpace.setVisibility(punctVis);
+            btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
