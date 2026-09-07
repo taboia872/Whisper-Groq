@@ -17,8 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
+import android.animation.ObjectAnimator;
+import android.animation.AnimatorSet;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +45,6 @@ public class WhisperInputMethodService extends InputMethodService {
     private TextView tvStatus;
     private Recorder mRecorder = null;
     private Whisper mWhisper = null;
-    private ProgressBar processingBar = null;
     private SharedPreferences sp = null;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Context mContext;
@@ -121,7 +122,6 @@ public class WhisperInputMethodService extends InputMethodService {
         btnExclaim = view.findViewById(R.id.btnExclaim);
         btnSpace = view.findViewById(R.id.btnSpace);
         btnStatus = view.findViewById(R.id.btnStatus);
-        processingBar = view.findViewById(R.id.processing_bar);
         tvStatus = view.findViewById(R.id.tv_status);
 
         btnStatus.setOnClickListener(v ->
@@ -150,18 +150,20 @@ public class WhisperInputMethodService extends InputMethodService {
             public void onUpdateReceived(String message) {
                 if (message.equals(Recorder.MSG_RECORDING)) {
                     handler.post(() -> btnRecord.setImageResource(R.drawable.ic_mic_recording_48dp));
+                    startRecordingPulse();
                 } else if (message.equals(Recorder.MSG_RECORDING_DONE)) {
                     HapticFeedback.vibrate(mContext);
+                    stopRecordingPulse();
                     handler.post(() -> btnRecord.setImageResource(R.drawable.ic_mic_48dp));
                     startTranscription();
                 } else if (message.equals(Recorder.MSG_RECORDING_ERROR)) {
                     HapticFeedback.vibrate(mContext);
+                    stopRecordingPulse();
                     if (countDownTimer != null) countDownTimer.cancel();
                     handler.post(() -> {
                         btnRecord.setImageResource(R.drawable.ic_mic_48dp);
                         tvStatus.setText(getString(R.string.error_no_input));
                         tvStatus.setVisibility(View.VISIBLE);
-                        processingBar.setProgress(0);
                     });
                 }
             }
@@ -263,27 +265,46 @@ public class WhisperInputMethodService extends InputMethodService {
         }
     }
 
-    private void startCountdown() {
-        try {
-            if (countDownTimer != null) countDownTimer.cancel();
-            int maxSeconds = sp.getInt("max_recording_seconds", 60);
-            final int maxMs = maxSeconds * 1000;
-            handler.post(() -> processingBar.setProgress(100));
-            countDownTimer = new CountDownTimer(maxMs, 1000) {
-                @Override
-                public void onTick(long l) {
-                    try {
-                        int pct = (int)((l * 100) / maxMs);
-                        handler.post(() -> processingBar.setProgress(pct));
-                    } catch (Exception ignored) {}
-                }
-                @Override
-                public void onFinish() {}
-            };
-            countDownTimer.start();
-        } catch (Exception e) {
-            Log.e(TAG, "startCountdown failed", e);
+    private ObjectAnimator pulseAnimator;
+
+    private void startRecordingPulse() {
+        stopRecordingPulse();
+        pulseAnimator = ObjectAnimator.ofFloat(btnRecord, "scaleX", 1.0f, 1.15f);
+        pulseAnimator.setDuration(600);
+        pulseAnimator.setRepeatMode(ObjectAnimator.REVERSE);
+        pulseAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+        ObjectAnimator pulseY = ObjectAnimator.ofFloat(btnRecord, "scaleY", 1.0f, 1.15f);
+        pulseY.setDuration(600);
+        pulseY.setRepeatMode(ObjectAnimator.REVERSE);
+        pulseY.setRepeatCount(ObjectAnimator.INFINITE);
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(pulseAnimator, pulseY);
+        set.setInterpolator(new AccelerateDecelerateInterpolator());
+        set.start();
+        pulseAnimator = pulseAnimator; // keep ref to cancel
+    }
+
+    private void stopRecordingPulse() {
+        if (pulseAnimator != null) {
+            pulseAnimator.cancel();
+            btnRecord.animate().scaleX(1f).scaleY(1f).setDuration(200).start();
         }
+    }
+
+    private void startCountdown() {
+        // No more progress bar — countdown timer just pings the LED
+        if (countDownTimer != null) countDownTimer.cancel();
+        int maxSeconds = sp.getInt("max_recording_seconds", 60);
+        final int maxMs = maxSeconds * 1000;
+        countDownTimer = new CountDownTimer(maxMs, 1000) {
+            @Override public void onTick(long l) {}
+            @Override public void onFinish() {
+                if (mRecorder != null && mRecorder.isInProgress()) {
+                    mRecorder.stop();
+                }
+            }
+        };
+        countDownTimer.start();
     }
 
     private ImageButton btnStatus;
@@ -298,7 +319,6 @@ public class WhisperInputMethodService extends InputMethodService {
                 if (message.startsWith("ERROR")) {
                     handler.post(() -> {
                         Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
-                        processingBar.setIndeterminate(false);
                     });
                 }
             }
@@ -330,7 +350,6 @@ public class WhisperInputMethodService extends InputMethodService {
             @Override
             public void onResultReceived(WhisperResult whisperResult) {
                 handler.post(() -> {
-                    processingBar.setIndeterminate(false);
                     tvStatus.setText("");
                     tvStatus.setVisibility(View.GONE);
                 });
@@ -349,10 +368,6 @@ public class WhisperInputMethodService extends InputMethodService {
 
     private void startTranscription() {
         if (countDownTimer != null) countDownTimer.cancel();
-        handler.post(() -> {
-            processingBar.setProgress(0);
-            processingBar.setIndeterminate(true);
-        });
         if (mWhisper != null) {
             mWhisper.start();
         }
