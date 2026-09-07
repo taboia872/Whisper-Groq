@@ -243,7 +243,6 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
             processingBar.setIndeterminate(true);
         });
         if (mWhisper != null) {
-            mWhisper.setLanguage("auto");
             mWhisper.start();
             Log.d(TAG, "Start Transcription");
         }

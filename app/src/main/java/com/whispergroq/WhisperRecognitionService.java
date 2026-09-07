@@ -112,7 +112,6 @@ public class WhisperRecognitionService extends RecognitionService {
 
     private void initWhisper(Callback callback) {
         mWhisper = new Whisper(this);
-        mWhisper.setLanguage("auto");
         mWhisper.setListener(new Whisper.WhisperListener() {
             @Override
             public void onUpdateReceived(String message) { }

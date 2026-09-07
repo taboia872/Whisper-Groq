@@ -244,7 +244,6 @@ public class MainActivity extends AppCompatActivity {
             processingBar.setProgress(0);
             processingBar.setIndeterminate(true);
         });
-        mWhisper.setLanguage("auto");
         mWhisper.start();
     }
 

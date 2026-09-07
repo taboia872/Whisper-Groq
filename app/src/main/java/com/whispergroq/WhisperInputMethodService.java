@@ -308,7 +308,6 @@ public class WhisperInputMethodService extends InputMethodService {
             processingBar.setIndeterminate(true);
         });
         if (mWhisper != null) {
-            mWhisper.setLanguage("auto"); // Groq auto-detects
             mWhisper.start();
         }
     }
