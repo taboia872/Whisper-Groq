@@ -9,6 +9,8 @@ import androidx.preference.PreferenceManager;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,6 +38,7 @@ public class Whisper {
     private final Context mContext;
     private final SharedPreferences sp;
     private final OkHttpClient httpClient;
+    private final ExecutorService executor;
     private WhisperListener mUpdateListener;
     private long startTime;
     private volatile okhttp3.Call activeCall;
@@ -43,13 +46,13 @@ public class Whisper {
     public Whisper(Context context) {
         mContext = context;
         sp = PreferenceManager.getDefaultSharedPreferences(context);
-        // Keep-alive enabled, short pool — API key is per-request, no session locking
         httpClient = new OkHttpClient.Builder()
                 .connectTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true)
                 .build();
+        executor = Executors.newSingleThreadExecutor();
     }
 
     public void setListener(WhisperListener listener) {
@@ -61,7 +64,7 @@ public class Whisper {
             Log.d(TAG, "Execution already in progress");
             return;
         }
-        new Thread(this::processRecordBuffer).start();
+        executor.execute(this::processRecordBuffer);
     }
 
     public void stop() {
@@ -72,6 +75,10 @@ public class Whisper {
 
     public boolean isInProgress() {
         return mInProgress.get();
+    }
+
+    public void shutdown() {
+        executor.shutdown();
     }
 
     private void processRecordBuffer() {
@@ -94,38 +101,13 @@ public class Whisper {
             sendUpdate(MSG_PROCESSING);
 
             byte[] wavData = WavEncoder.encodePcmToWav(pcmData);
+            WhisperResult result = transcribeAudio(wavData, apiKey, model);
+            sendResult(result);
 
-            RequestBody body = new MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart("file", "audio.wav",
-                            RequestBody.create(wavData, WAV))
-                    .addFormDataPart("model", model)
-                    .addFormDataPart("response_format", "json")
-                    .build();
+            long elapsed = System.currentTimeMillis() - startTime;
+            Log.d(TAG, "Transcription in " + elapsed + "ms");
+            sendUpdate(MSG_PROCESSING_DONE);
 
-            Request request = new Request.Builder()
-                    .url(GROQ_URL)
-                    .header("Authorization", "Bearer " + apiKey)
-                    .post(body)
-                    .build();
-
-            okhttp3.Call call = httpClient.newCall(request);
-            activeCall = call;
-
-            try (Response response = call.execute()) {
-                String responseBody = response.body() != null ? response.body().string() : "";
-                if (!response.isSuccessful()) {
-                    sendUpdate("ERROR " + response.code() + ": " + responseBody);
-                    return;
-                }
-                JSONObject json = new JSONObject(responseBody);
-                String text = json.optString("text", "");
-                String detectedLang = json.optString("language", "auto");
-                sendResult(new WhisperResult(text, detectedLang));
-                long elapsed = System.currentTimeMillis() - startTime;
-                Log.d(TAG, "Transcription in " + elapsed + "ms");
-                sendUpdate(MSG_PROCESSING_DONE);
-            }
         } catch (IOException e) {
             if (activeCall != null && activeCall.isCanceled()) {
                 Log.d(TAG, "Call cancelled by user");
@@ -139,6 +121,39 @@ public class Whisper {
         } finally {
             activeCall = null;
             mInProgress.set(false);
+        }
+    }
+
+    /**
+     * HTTP call to Groq Whisper endpoint. Encapsulates the multipart logic.
+     */
+    private WhisperResult transcribeAudio(byte[] wavData, String apiKey, String model) throws Exception {
+        RequestBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", "audio.wav",
+                        RequestBody.create(wavData, WAV))
+                .addFormDataPart("model", model)
+                .addFormDataPart("response_format", "json")
+                .build();
+
+        Request request = new Request.Builder()
+                .url(GROQ_URL)
+                .header("Authorization", "Bearer " + apiKey)
+                .post(body)
+                .build();
+
+        okhttp3.Call call = httpClient.newCall(request);
+        activeCall = call;
+
+        try (Response response = call.execute()) {
+            String responseBody = response.body() != null ? response.body().string() : "";
+            if (!response.isSuccessful()) {
+                throw new IOException("Groq API error " + response.code() + ": " + responseBody);
+            }
+            JSONObject json = new JSONObject(responseBody);
+            String text = json.optString("text", "");
+            String detectedLang = json.optString("language", "auto");
+            return new WhisperResult(text, detectedLang);
         }
     }
 
