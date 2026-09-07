@@ -47,12 +47,19 @@ public class SettingsActivity extends AppCompatActivity {
 
         sp = PreferenceManager.getDefaultSharedPreferences(this);
 
-        // API Key
+        // Migrate plaintext API key to encrypted prefs on first run
+        String legacyKey = sp.getString("groq_api_key", "");
+        if (!legacyKey.isEmpty()) {
+            com.whispergroq.utils.SecurePrefs.setApiKey(this, legacyKey);
+            sp.edit().remove("groq_api_key").apply();
+        }
+
+        // API Key (encrypted)
         EditText editApiKey = findViewById(R.id.editApiKey);
-        editApiKey.setText(sp.getString("groq_api_key", ""));
+        editApiKey.setText(com.whispergroq.utils.SecurePrefs.getApiKey(this));
         editApiKey.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                sp.edit().putString("groq_api_key", editApiKey.getText().toString().trim()).apply();
+                com.whispergroq.utils.SecurePrefs.setApiKey(this, editApiKey.getText().toString().trim());
             }
         });
 
@@ -136,7 +143,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onPause();
         EditText editApiKey = findViewById(R.id.editApiKey);
         if (editApiKey != null) {
-            sp.edit().putString("groq_api_key", editApiKey.getText().toString().trim()).apply();
+            com.whispergroq.utils.SecurePrefs.setApiKey(this, editApiKey.getText().toString().trim());
         }
     }
 

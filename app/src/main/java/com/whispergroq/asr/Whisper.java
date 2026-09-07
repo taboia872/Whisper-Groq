@@ -82,7 +82,7 @@ public class Whisper {
                 return;
             }
 
-            String apiKey = sp.getString("groq_api_key", "");
+            String apiKey = com.whispergroq.utils.SecurePrefs.getApiKey(mContext);
             if (apiKey.isEmpty()) {
                 sendUpdate("ERROR: Groq API key not configured. Open settings.");
                 return;

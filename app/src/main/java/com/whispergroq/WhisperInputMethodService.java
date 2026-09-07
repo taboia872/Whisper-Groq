@@ -189,8 +189,10 @@ public class WhisperInputMethodService extends InputMethodService {
 
         // Delete with long-press repeat
         btnDel.setOnTouchListener((v, event) -> {
+            android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+            if (ic == null) return true;
             if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
-                getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+                ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                 startDeleteRepeat();
             } else if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
                 stopDeleteRepeat();
@@ -203,18 +205,24 @@ public class WhisperInputMethodService extends InputMethodService {
             switchToPreviousInputMethod();
         });
 
-        btnEnter.setOnClickListener(v ->
-            getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
-        );
+        btnEnter.setOnClickListener(v -> {
+            android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+            if (ic != null) ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+        });
 
         // Punctuation buttons
-        btnPeriod.setOnClickListener(v -> getCurrentInputConnection().commitText(".", 1));
-        btnComma.setOnClickListener(v -> getCurrentInputConnection().commitText(", ", 1));
-        btnQuestion.setOnClickListener(v -> getCurrentInputConnection().commitText("?", 1));
-        btnExclaim.setOnClickListener(v -> getCurrentInputConnection().commitText("!", 1));
-        btnSpace.setOnClickListener(v -> getCurrentInputConnection().commitText(" ", 1));
+        btnPeriod.setOnClickListener(v -> safeCommit("."));
+        btnComma.setOnClickListener(v -> safeCommit(", "));
+        btnQuestion.setOnClickListener(v -> safeCommit("?"));
+        btnExclaim.setOnClickListener(v -> safeCommit("!"));
+        btnSpace.setOnClickListener(v -> safeCommit(" "));
 
         return view;
+    }
+
+    private void safeCommit(String text) {
+        android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+        if (ic != null) ic.commitText(text, 1);
     }
 
     private Runnable deleteRepeatRunnable;
@@ -295,7 +303,12 @@ public class WhisperInputMethodService extends InputMethodService {
                 });
                 String result = whisperResult.getResult().trim();
                 if (!result.isEmpty()) {
-                    getCurrentInputConnection().commitText(result + " ", 1);
+                    android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+                    if (ic != null) {
+                        ic.commitText(result + " ", 1);
+                    } else {
+                        Log.w(TAG, "InputConnection null when trying to commit: " + result);
+                    }
                 }
             }
         });
