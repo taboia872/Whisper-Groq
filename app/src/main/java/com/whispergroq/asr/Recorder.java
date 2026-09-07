@@ -110,12 +110,12 @@ public class Recorder {
         Log.d(TAG, "Recording stopped");
         mInProgress.set(false);
 
-        // Wait for the recording thread to finish
+        // Wait for the recording thread to finish, timeout 2s
         synchronized (fileSavedLock) {
             try {
-                fileSavedLock.wait(); // Wait until notified by the recording thread
+                fileSavedLock.wait(2000);
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // Restore interrupted status
+                Thread.currentThread().interrupt();
             }
         }
     }
