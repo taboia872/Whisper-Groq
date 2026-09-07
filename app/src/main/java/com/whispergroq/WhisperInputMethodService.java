@@ -213,8 +213,14 @@ public class WhisperInputMethodService extends InputMethodService {
     }
 
     private void showKeyboard() {
-        getSystemService(android.view.inputmethod.InputMethodManager.class)
-                .showSoftInputFromInputMethod(getCurrentInputConnection() == null ? null : getCurrentInputConnection().getToken(), 0);
+        // Open the previous keyboard (not a hard keyboard)
+        try {
+            android.view.inputmethod.InputMethodManager imm =
+                    (android.view.inputmethod.InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showInputMethodPicker();
+            }
+        } catch (Exception ignored) {}
     }
 
     private void showPunctuationPopup(View anchor) {
