@@ -26,6 +26,7 @@ public class Whisper {
     public interface WhisperListener {
         void onUpdateReceived(String message);
         void onResultReceived(WhisperResult result);
+        default void onStatusChanged(String status, String detailMessage) {}
     }
 
     private static final String TAG = "Whisper";
@@ -59,6 +60,10 @@ public class Whisper {
         this.mUpdateListener = listener;
     }
 
+    private void updateStatus(String status, String detail) {
+        if (mUpdateListener != null) mUpdateListener.onStatusChanged(status, detail);
+    }
+
     public void start() {
         if (!mInProgress.compareAndSet(false, true)) {
             Log.d(TAG, "Execution already in progress");
@@ -85,12 +90,14 @@ public class Whisper {
         try {
             byte[] pcmData = RecordBuffer.getOutputBuffer();
             if (pcmData == null || pcmData.length == 0) {
+                updateStatus("ERROR", "Nenhum áudio gravado");
                 sendUpdate("No audio recorded");
                 return;
             }
 
             String apiKey = com.whispergroq.utils.SecurePrefs.getApiKey(mContext);
             if (apiKey.isEmpty()) {
+                updateStatus("ERROR", "API key não configurada");
                 sendUpdate("ERROR: Groq API key not configured. Open settings.");
                 return;
             }
@@ -99,6 +106,7 @@ public class Whisper {
 
             startTime = System.currentTimeMillis();
             sendUpdate(MSG_PROCESSING);
+            updateStatus("BUSY", null);
 
             byte[] wavData = WavEncoder.encodePcmToWav(pcmData);
             WhisperResult result = transcribeAudio(wavData, apiKey, model);
@@ -107,16 +115,20 @@ public class Whisper {
             long elapsed = System.currentTimeMillis() - startTime;
             Log.d(TAG, "Transcription in " + elapsed + "ms");
             sendUpdate(MSG_PROCESSING_DONE);
+            updateStatus("OK", "Transcrição em " + elapsed + "ms");
 
         } catch (IOException e) {
             if (activeCall != null && activeCall.isCanceled()) {
                 Log.d(TAG, "Call cancelled by user");
+                updateStatus("IDLE", null);
             } else {
                 Log.e(TAG, "Network error", e);
+                updateStatus("ERROR", "Rede: " + e.getMessage());
                 sendUpdate("Error: " + e.getMessage());
             }
         } catch (Exception e) {
             Log.e(TAG, "Transcription error", e);
+            updateStatus("ERROR", e.getMessage());
             sendUpdate("Error: " + e.getMessage());
         } finally {
             activeCall = null;

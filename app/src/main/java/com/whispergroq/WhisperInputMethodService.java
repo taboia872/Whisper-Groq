@@ -120,8 +120,13 @@ public class WhisperInputMethodService extends InputMethodService {
         btnQuestion = view.findViewById(R.id.btnQuestion);
         btnExclaim = view.findViewById(R.id.btnExclaim);
         btnSpace = view.findViewById(R.id.btnSpace);
+        btnStatus = view.findViewById(R.id.btnStatus);
         processingBar = view.findViewById(R.id.processing_bar);
         tvStatus = view.findViewById(R.id.tv_status);
+
+        btnStatus.setOnClickListener(v ->
+            Toast.makeText(mContext, lastStatusMessage, Toast.LENGTH_SHORT).show()
+        );
 
         // Apply visibility toggles from settings
         boolean showPunctuation = sp.getBoolean("show_punctuation", true);
@@ -281,6 +286,10 @@ public class WhisperInputMethodService extends InputMethodService {
         }
     }
 
+    private ImageButton btnStatus;
+    private String lastStatusMessage = "Pronto";
+    private int lastStatusResId = R.drawable.status_led_idle;
+
     private void initModel() {
         mWhisper = new Whisper(this);
         mWhisper.setListener(new Whisper.WhisperListener() {
@@ -292,6 +301,30 @@ public class WhisperInputMethodService extends InputMethodService {
                         processingBar.setIndeterminate(false);
                     });
                 }
+            }
+
+            @Override
+            public void onStatusChanged(String status, String detail) {
+                int resId;
+                switch (status) {
+                    case "OK":
+                        resId = R.drawable.status_led_ok;
+                        lastStatusMessage = detail != null ? detail : "OK";
+                        break;
+                    case "BUSY":
+                        resId = R.drawable.status_led_busy;
+                        lastStatusMessage = "Processando...";
+                        break;
+                    case "ERROR":
+                        resId = R.drawable.status_led_error;
+                        lastStatusMessage = detail != null ? detail : "Erro desconhecido";
+                        break;
+                    default:
+                        resId = R.drawable.status_led_idle;
+                        lastStatusMessage = "Pronto";
+                }
+                lastStatusResId = resId;
+                handler.post(() -> btnStatus.setImageResource(resId));
             }
 
             @Override
