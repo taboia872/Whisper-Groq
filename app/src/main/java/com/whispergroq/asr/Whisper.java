@@ -109,7 +109,7 @@ public class Whisper {
             updateStatus("BUSY", null);
 
             byte[] wavData = WavEncoder.encodePcmToWav(pcmData);
-            WhisperResult result = transcribeAudio(wavData, apiKey, model);
+            WhisperResult result = transcribeAudioWithFallback(wavData, apiKey, model);
             sendResult(result);
 
             long elapsed = System.currentTimeMillis() - startTime;
@@ -134,6 +134,32 @@ public class Whisper {
             activeCall = null;
             mInProgress.set(false);
         }
+    }
+
+    private WhisperResult transcribeAudioWithFallback(byte[] wavData, String apiKey, String model) throws Exception {
+        int attempts = 0;
+        int maxAttempts = com.whispergroq.utils.SecurePrefs.getKeyCount(mContext);
+        Exception lastError = null;
+
+        for (; attempts < maxAttempts; attempts++) {
+            try {
+                return transcribeAudio(wavData, apiKey, model);
+            } catch (Exception e) {
+                lastError = e;
+                String msg = e.getMessage() != null ? e.getMessage() : "";
+                if (msg.contains("401") || msg.contains("403")) {
+                    Log.w(TAG, "Auth error on key " + com.whispergroq.utils.SecurePrefs.getActiveKeyIndex(mContext) + "; rotating");
+                    com.whispergroq.utils.SecurePrefs.rotateKey(mContext);
+                    String nextKey = com.whispergroq.utils.SecurePrefs.getCurrentApiKey(mContext);
+                    if (nextKey == null || nextKey.isEmpty()) break;
+                    apiKey = nextKey;
+                    updateStatus("ERROR", "Chave inválida, alternando...");
+                } else {
+                    throw e;
+                }
+            }
+        }
+        throw lastError != null ? lastError : new Exception("All keys exhausted");
     }
 
     /**
