@@ -33,7 +33,6 @@ public class WhisperInputMethodService extends InputMethodService {
     private static final String TAG = "WhisperInputMethodService";
     private ImageButton btnRecord;
     private ImageButton btnKeyboard;
-    private ImageButton btnStop;
     private ImageButton btnEnter;
     private ImageButton btnDel;
     private TextView btnPeriod;
@@ -114,7 +113,6 @@ public class WhisperInputMethodService extends InputMethodService {
 
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
-        btnStop = view.findViewById(R.id.btnStop);
         btnEnter = view.findViewById(R.id.btnEnter);
         btnDel = view.findViewById(R.id.btnDel);
         btnPeriod = view.findViewById(R.id.btnPeriod);
@@ -165,7 +163,6 @@ public class WhisperInputMethodService extends InputMethodService {
         });
 
         if (modeAuto) {
-            btnStop.setVisibility(View.VISIBLE);
             HapticFeedback.vibrate(this);
             startRecording();
             startCountdown();
@@ -204,10 +201,6 @@ public class WhisperInputMethodService extends InputMethodService {
         btnKeyboard.setOnClickListener(v -> {
             if (mWhisper != null) mWhisper.stop();
             switchToPreviousInputMethod();
-        });
-
-        btnStop.setOnClickListener(v -> {
-            if (mRecorder != null) mRecorder.requestStopVad();
         });
 
         btnEnter.setOnClickListener(v ->

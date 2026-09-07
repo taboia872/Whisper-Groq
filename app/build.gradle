@@ -11,7 +11,7 @@ android {
         minSdk 28
         targetSdk 35
         versionCode 21
-        versionName "1.5.2"
+        versionName "1.6.0"
     }
 
     buildFeatures {
@@ -57,4 +57,5 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'com.github.gkonovalov.android-vad:webrtc:2.0.10'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 }
