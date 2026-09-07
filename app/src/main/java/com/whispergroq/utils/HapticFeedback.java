@@ -11,24 +11,43 @@ import android.provider.Settings;
 
 public class HapticFeedback {
 
+    public static void vibrateStart(Context context){
+        vibrate(context, 20, 255);
+    }
+
+    public static void vibrateDone(Context context){
+        vibrate(context, 30, 180);
+        try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        vibrate(context, 20, 255);
+    }
+
+    public static void vibrateError(Context context){
+        vibrate(context, 100, 255);
+        try { Thread.sleep(80); } catch (InterruptedException ignored) {}
+        vibrate(context, 100, 255);
+    }
+
     public static void vibrate(Context context){
-        if (hapticEnabled(context)){
-            Vibrator vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK));
-            } else {
-                VibrationEffect vibrationEffect = VibrationEffect.createOneShot(10, 255);
-                vibrator.vibrate(vibrationEffect);
-            }
+        vibrate(context, 15, 200);
+    }
+
+    private static void vibrate(Context context, long ms, int amplitude){
+        if (!hapticEnabled(context)) return;
+        Vibrator vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE);
+        if (vibrator == null) return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            vibrator.vibrate(VibrationEffect.createOneShot(ms, amplitude));
+        } else {
+            vibrator.vibrate(VibrationEffect.createOneShot(ms, amplitude));
         }
     }
 
     private static boolean hapticEnabled(Context context){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            VibratorManager vibratorManager = (VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
-            return vibratorManager.getDefaultVibrator().hasVibrator();
-        } else {
-            return Settings.System.getInt(context.getContentResolver(), Settings.System.HAPTIC_FEEDBACK_ENABLED, 0) == 1;
+            VibratorManager vm = (VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+            return vm != null && vm.getDefaultVibrator().hasVibrator();
         }
+        Vibrator v = (Vibrator) context.getSystemService(VIBRATOR_SERVICE);
+        return v != null && v.hasVibrator();
     }
 }

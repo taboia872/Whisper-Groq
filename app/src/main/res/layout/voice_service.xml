@@ -13,13 +13,13 @@
         android:background="@drawable/keyboard_bg"
         android:padding="8dp">
 
-        <!-- Top row: status LED -->
+        <!-- Top row: LED -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="4dp">
+            android:layout_marginBottom="6dp">
 
             <ImageButton
                 android:id="@+id/btnStatus"
@@ -41,19 +41,19 @@
                 android:textColor="@color/ime_text_primary" />
         </LinearLayout>
 
-        <!-- Mic center: no progress bar (replaced by LED + pulse animation) -->
+        <!-- Mic center -->
         <ImageButton
             android:id="@+id/btnRecord"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginVertical="8dp"
+            android:layout_marginVertical="6dp"
             android:background="@drawable/kb_mic_button"
             android:padding="14dp"
             android:src="@drawable/ic_mic_48dp"
             android:contentDescription="@string/record_button"/>
 
-        <!-- Unified row: kb | . | , | ! | ? | space | del | enter -->
+        <!-- Buttons row 1: keyboard | select-all | cut | copy | paste -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -73,74 +73,91 @@
                 android:src="@drawable/ic_keyboard_36dp"
                 android:contentDescription="@string/exit_button"/>
 
-            <TextView
-                android:id="@+id/btnPeriod"
+            <ImageButton
+                android:id="@+id/btnSelectAll"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/kb_button"
-                android:gravity="center"
-                android:text="."
-                android:textColor="@color/ime_text_primary"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_select_all_24dp"
+                android:contentDescription="Select all"/>
 
-            <TextView
-                android:id="@+id/btnComma"
+            <ImageButton
+                android:id="@+id/btnCut"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/kb_button"
-                android:gravity="center"
-                android:text=","
-                android:textColor="@color/ime_text_primary"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_cut_24dp"
+                android:contentDescription="Cut"/>
 
-            <TextView
-                android:id="@+id/btnExclaim"
+            <ImageButton
+                android:id="@+id/btnCopy"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/kb_button"
-                android:gravity="center"
-                android:text="!"
-                android:textColor="@color/ime_text_primary"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_copy_24dp"
+                android:contentDescription="Copy"/>
 
-            <TextView
-                android:id="@+id/btnQuestion"
+            <ImageButton
+                android:id="@+id/btnPaste"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/kb_button"
-                android:gravity="center"
-                android:text="?"
-                android:textColor="@color/ime_text_primary"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_paste_24dp"
+                android:contentDescription="Paste"/>
+        </LinearLayout>
 
-            <TextView
-                android:id="@+id/btnSpace"
+        <!-- Buttons row 2: punctuation | numbers | del | enter -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <ImageButton
+                android:id="@+id/btnPunctuation"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/kb_button"
-                android:gravity="center"
-                android:text="␣"
-                android:textColor="@color/ime_text_primary"
-                android:textSize="16sp"/>
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_punctuation_24dp"
+                android:contentDescription="Punctuation"/>
+
+            <ImageButton
+                android:id="@+id/btnNumbers"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/kb_button"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_numbers_24dp"
+                android:contentDescription="Numbers"/>
 
             <ImageButton
                 android:id="@+id/btnDel"

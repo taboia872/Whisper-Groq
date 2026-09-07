@@ -16,6 +16,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.widget.ImageButton;
 import android.animation.ObjectAnimator;
 import android.animation.AnimatorSet;
@@ -23,6 +24,9 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.PopupWindow;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 
 import androidx.core.content.ContextCompat;
 
@@ -37,11 +41,13 @@ public class WhisperInputMethodService extends InputMethodService {
     private ImageButton btnKeyboard;
     private ImageButton btnEnter;
     private ImageButton btnDel;
-    private TextView btnPeriod;
-    private TextView btnComma;
-    private TextView btnQuestion;
-    private TextView btnExclaim;
-    private TextView btnSpace;
+    private ImageButton btnSelectAll;
+    private ImageButton btnCut;
+    private ImageButton btnCopy;
+    private ImageButton btnPaste;
+    private ImageButton btnPunctuation;
+    private ImageButton btnNumbers;
+    private ImageButton btnStatus;
     private TextView tvStatus;
     private Recorder mRecorder = null;
     private Whisper mWhisper = null;
@@ -49,7 +55,9 @@ public class WhisperInputMethodService extends InputMethodService {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Context mContext;
     private CountDownTimer countDownTimer;
-    private boolean modeAuto = false;
+    private String lastStatusMessage = "Pronto";
+    private ObjectAnimator pulseAnimator;
+    private PopupWindow punctuationPopup;
 
     @Override
     public void onCreate() {
@@ -59,34 +67,23 @@ public class WhisperInputMethodService extends InputMethodService {
 
     @Override
     public void onDestroy() {
-        if (mRecorder != null && mRecorder.isInProgress()) {
-            mRecorder.stop();
-        }
+        if (mRecorder != null && mRecorder.isInProgress()) mRecorder.stop();
+        if (punctuationPopup != null) punctuationPopup.dismiss();
         super.onDestroy();
     }
 
     @Override
     public void onStartInput(EditorInfo attribute, boolean restarting) {
         if (attribute.inputType == EditorInfo.TYPE_NULL) {
-            if (mRecorder != null && mRecorder.isInProgress()) {
-                mRecorder.stop();
-            }
+            if (mRecorder != null && mRecorder.isInProgress()) mRecorder.stop();
         }
     }
 
     @Override
     public void onStartInputView(EditorInfo attribute, boolean restarting){
         if (mWhisper == null) initModel();
-        // Reapply visibility toggles every time view is shown
-        if (btnPeriod != null) {
-            boolean showPunctuation = sp.getBoolean("show_punctuation", true);
+        if (btnKeyboard != null) {
             boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
-            int punctVis = showPunctuation ? View.VISIBLE : View.GONE;
-            btnPeriod.setVisibility(punctVis);
-            btnComma.setVisibility(punctVis);
-            btnQuestion.setVisibility(punctVis);
-            btnExclaim.setVisibility(punctVis);
-            btnSpace.setVisibility(punctVis);
             btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
         }
     }
@@ -97,7 +94,6 @@ public class WhisperInputMethodService extends InputMethodService {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         View view = getLayoutInflater().inflate(R.layout.voice_service, null);
 
-        // Fallback: don't crash if window insets API fails on weird hosts
         try {
             ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
                 try {
@@ -114,13 +110,14 @@ public class WhisperInputMethodService extends InputMethodService {
 
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
-        btnEnter = view.findViewById(R.id.btnEnter);
+        btnSelectAll = view.findViewById(R.id.btnSelectAll);
+        btnCut = view.findViewById(R.id.btnCut);
+        btnCopy = view.findViewById(R.id.btnCopy);
+        btnPaste = view.findViewById(R.id.btnPaste);
+        btnPunctuation = view.findViewById(R.id.btnPunctuation);
+        btnNumbers = view.findViewById(R.id.btnNumbers);
         btnDel = view.findViewById(R.id.btnDel);
-        btnPeriod = view.findViewById(R.id.btnPeriod);
-        btnComma = view.findViewById(R.id.btnComma);
-        btnQuestion = view.findViewById(R.id.btnQuestion);
-        btnExclaim = view.findViewById(R.id.btnExclaim);
-        btnSpace = view.findViewById(R.id.btnSpace);
+        btnEnter = view.findViewById(R.id.btnEnter);
         btnStatus = view.findViewById(R.id.btnStatus);
         tvStatus = view.findViewById(R.id.tv_status);
 
@@ -128,20 +125,6 @@ public class WhisperInputMethodService extends InputMethodService {
             Toast.makeText(mContext, lastStatusMessage, Toast.LENGTH_SHORT).show()
         );
 
-        // Apply visibility toggles from settings
-        boolean showPunctuation = sp.getBoolean("show_punctuation", true);
-        boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
-        int punctVis = showPunctuation ? View.VISIBLE : View.GONE;
-        btnPeriod.setVisibility(punctVis);
-        btnComma.setVisibility(punctVis);
-        btnQuestion.setVisibility(punctVis);
-        btnExclaim.setVisibility(punctVis);
-        btnSpace.setVisibility(punctVis);
-        btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
-
-        Log.d(TAG, "Visibility: punct=" + showPunctuation + " kb=" + showKeyboard);
-
-        modeAuto = false;
         checkRecordPermission();
 
         mRecorder = new Recorder(this);
@@ -152,12 +135,12 @@ public class WhisperInputMethodService extends InputMethodService {
                     handler.post(() -> btnRecord.setImageResource(R.drawable.ic_mic_recording_48dp));
                     startRecordingPulse();
                 } else if (message.equals(Recorder.MSG_RECORDING_DONE)) {
-                    HapticFeedback.vibrate(mContext);
+                    HapticFeedback.vibrateDone(mContext);
                     stopRecordingPulse();
                     handler.post(() -> btnRecord.setImageResource(R.drawable.ic_mic_48dp));
                     startTranscription();
                 } else if (message.equals(Recorder.MSG_RECORDING_ERROR)) {
-                    HapticFeedback.vibrate(mContext);
+                    HapticFeedback.vibrateError(mContext);
                     stopRecordingPulse();
                     if (countDownTimer != null) countDownTimer.cancel();
                     handler.post(() -> {
@@ -169,17 +152,11 @@ public class WhisperInputMethodService extends InputMethodService {
             }
         });
 
-        if (modeAuto) {
-            HapticFeedback.vibrate(this);
-            startRecording();
-            startCountdown();
-        }
         btnRecord.setOnClickListener(v -> {
             if (!checkRecordPermission()) return;
             if (mRecorder.isInProgress()) {
                 mRecorder.stop();
             } else if (mWhisper != null && !mWhisper.isInProgress()) {
-                HapticFeedback.vibrate(this);
                 startRecording();
                 startCountdown();
                 handler.post(() -> {
@@ -194,9 +171,8 @@ public class WhisperInputMethodService extends InputMethodService {
             }
         });
 
-        // Delete with long-press repeat
         btnDel.setOnTouchListener((v, event) -> {
-            android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+            InputConnection ic = getCurrentInputConnection();
             if (ic == null) return true;
             if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
@@ -213,22 +189,78 @@ public class WhisperInputMethodService extends InputMethodService {
         });
 
         btnEnter.setOnClickListener(v -> {
-            android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+            InputConnection ic = getCurrentInputConnection();
             if (ic != null) ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
         });
 
-        // Punctuation buttons
-        btnPeriod.setOnClickListener(v -> safeCommit("."));
-        btnComma.setOnClickListener(v -> safeCommit(", "));
-        btnQuestion.setOnClickListener(v -> safeCommit("?"));
-        btnExclaim.setOnClickListener(v -> safeCommit("!"));
-        btnSpace.setOnClickListener(v -> safeCommit(" "));
+        // Text editing actions
+        btnSelectAll.setOnClickListener(v -> sendKeyWithMeta(KeyEvent.KEYCODE_A, KeyEvent.META_CTRL_ON));
+        btnCut.setOnClickListener(v -> sendKeyWithMeta(KeyEvent.KEYCODE_X, KeyEvent.META_CTRL_ON));
+        btnCopy.setOnClickListener(v -> sendKeyWithMeta(KeyEvent.KEYCODE_C, KeyEvent.META_CTRL_ON));
+        btnPaste.setOnClickListener(v -> sendKeyWithMeta(KeyEvent.KEYCODE_V, KeyEvent.META_CTRL_ON));
+        btnNumbers.setOnClickListener(v -> showKeyboard());
+
+        // Punctuation popup
+        btnPunctuation.setOnClickListener(v -> showPunctuationPopup(v));
 
         return view;
     }
 
+    private void sendKeyWithMeta(int keyCode, int meta) {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic != null) ic.sendKeyEvent(new KeyEvent(0, 0, KeyEvent.ACTION_DOWN, keyCode, 0, meta));
+        if (ic != null) ic.sendKeyEvent(new KeyEvent(0, 0, KeyEvent.ACTION_UP, keyCode, 0, meta));
+    }
+
+    private void showKeyboard() {
+        getSystemService(android.view.inputmethod.InputMethodManager.class)
+                .showSoftInputFromInputMethod(getCurrentInputConnection() == null ? null : getCurrentInputConnection().getToken(), 0);
+    }
+
+    private void showPunctuationPopup(View anchor) {
+        if (punctuationPopup != null && punctuationPopup.isShowing()) {
+            punctuationPopup.dismiss();
+            return;
+        }
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setBackgroundResource(R.drawable.kb_button);
+        layout.setPadding(8, 8, 8, 8);
+
+        String[] puncts = {".", ",", "?", "!", ":", ";", "-", "(", ")", "\"", "'"};
+        for (String p : puncts) {
+            TextView btn = new TextView(this);
+            btn.setText(p);
+            btn.setTextSize(20);
+            btn.setTextColor(0xFFFFFFFF);
+            btn.setGravity(Gravity.CENTER);
+            btn.setBackgroundResource(R.drawable.kb_button);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    dpToPx(40), dpToPx(40));
+            lp.setMargins(dpToPx(4), 0, dpToPx(4), 0);
+            btn.setLayoutParams(lp);
+            btn.setOnClickListener(v -> {
+                safeCommit(p);
+                punctuationPopup.dismiss();
+            });
+            layout.addView(btn);
+        }
+
+        punctuationPopup = new PopupWindow(layout,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true);
+        punctuationPopup.setElevation(8);
+        punctuationPopup.showAsDropDown(anchor, 0, -dpToPx(60));
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
+    }
+
     private void safeCommit(String text) {
-        android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+        InputConnection ic = getCurrentInputConnection();
         if (ic != null) ic.commitText(text, 1);
     }
 
@@ -239,7 +271,7 @@ public class WhisperInputMethodService extends InputMethodService {
         deleteRepeatRunnable = new Runnable() {
             @Override
             public void run() {
-                android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+                InputConnection ic = getCurrentInputConnection();
                 if (ic != null) ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                 deleteHandler.postDelayed(this, 100);
             }
@@ -253,6 +285,7 @@ public class WhisperInputMethodService extends InputMethodService {
 
     private void startRecording() {
         try {
+            HapticFeedback.vibrateStart(this);
             mRecorder.start();
         } catch (Exception e) {
             Log.e(TAG, "startRecording failed", e);
@@ -264,8 +297,6 @@ public class WhisperInputMethodService extends InputMethodService {
             } catch (Exception ignored) {}
         }
     }
-
-    private ObjectAnimator pulseAnimator;
 
     private void startRecordingPulse() {
         stopRecordingPulse();
@@ -281,7 +312,6 @@ public class WhisperInputMethodService extends InputMethodService {
         set.playTogether(pulseAnimator, pulseY);
         set.setInterpolator(new AccelerateDecelerateInterpolator());
         set.start();
-        pulseAnimator = pulseAnimator; // keep ref to cancel
     }
 
     private void stopRecordingPulse() {
@@ -292,7 +322,6 @@ public class WhisperInputMethodService extends InputMethodService {
     }
 
     private void startCountdown() {
-        // No more progress bar — countdown timer just pings the LED
         if (countDownTimer != null) countDownTimer.cancel();
         int maxSeconds = sp.getInt("max_recording_seconds", 60);
         final int maxMs = maxSeconds * 1000;
@@ -307,19 +336,13 @@ public class WhisperInputMethodService extends InputMethodService {
         countDownTimer.start();
     }
 
-    private ImageButton btnStatus;
-    private String lastStatusMessage = "Pronto";
-    private int lastStatusResId = R.drawable.status_led_idle;
-
     private void initModel() {
         mWhisper = new Whisper(this);
         mWhisper.setListener(new Whisper.WhisperListener() {
             @Override
             public void onUpdateReceived(String message) {
                 if (message.startsWith("ERROR")) {
-                    handler.post(() -> {
-                        Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
-                    });
+                    handler.post(() -> Toast.makeText(mContext, message, Toast.LENGTH_LONG).show());
                 }
             }
 
@@ -343,7 +366,6 @@ public class WhisperInputMethodService extends InputMethodService {
                         resId = R.drawable.status_led_idle;
                         lastStatusMessage = "Pronto";
                 }
-                lastStatusResId = resId;
                 handler.post(() -> btnStatus.setImageResource(resId));
             }
 
@@ -355,7 +377,7 @@ public class WhisperInputMethodService extends InputMethodService {
                 });
                 String result = whisperResult.getResult().trim();
                 if (!result.isEmpty()) {
-                    android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+                    InputConnection ic = getCurrentInputConnection();
                     if (ic != null) {
                         ic.commitText(result + " ", 1);
                     } else {
