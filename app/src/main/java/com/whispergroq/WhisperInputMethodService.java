@@ -149,6 +149,22 @@ public class WhisperInputMethodService extends InputMethodService {
             });
         } catch (Exception ignored) {}
 
+        // Fix layout when target app is fullscreen: the IME view is laid out
+        // as if system bars were visible, but the app hides them. Force the
+        // touchable/visible insets so the keyboard bottom stays on screen.
+        view.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            try {
+                if (isFullscreen()) {
+                    InputMethodService.Insets insets = getWindow().getInsets();
+                    if (insets != null) {
+                        insets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_CONTENT;
+                        insets.visibleTopInsets = 0;
+                        insets.contentTopInsets = 0;
+                    }
+                }
+            } catch (Exception ignored) {}
+        });
+
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
         btnSelectAll = view.findViewById(R.id.btnSelectAll);
