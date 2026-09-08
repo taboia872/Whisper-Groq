@@ -106,6 +106,21 @@ public class WhisperInputMethodService extends InputMethodService {
     }
 
     @Override
+    public void onComputeInsets(InputMethodService.Insets outInsets) {
+        super.onComputeInsets(outInsets);
+        // When the target app is fullscreen (hides system bars), Android
+        // computes the IME area as if the nav bar were still visible,
+        // clipping our bottom buttons. Force the touchable area to the
+        // full visible frame so the second button row stays on screen.
+        outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_VISIBLE;
+    }
+
+    @Override
+    public boolean onEvaluateFullscreenMode() {
+        return false;
+    }
+
+    @Override
     public void onDestroy() {
         if (mRecorder != null && mRecorder.isInProgress()) mRecorder.stop();
         if (punctuationPopup != null) punctuationPopup.dismiss();
@@ -148,22 +163,6 @@ public class WhisperInputMethodService extends InputMethodService {
                 return WindowInsetsCompat.CONSUMED;
             });
         } catch (Exception ignored) {}
-
-        // Fix layout when target app is fullscreen: the IME view is laid out
-        // as if system bars were visible, but the app hides them. Force the
-        // touchable/visible insets so the keyboard bottom stays on screen.
-        view.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-            try {
-                if (isFullscreen()) {
-                    InputMethodService.Insets insets = getWindow().getInsets();
-                    if (insets != null) {
-                        insets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_CONTENT;
-                        insets.visibleTopInsets = 0;
-                        insets.contentTopInsets = 0;
-                    }
-                }
-            } catch (Exception ignored) {}
-        });
 
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
