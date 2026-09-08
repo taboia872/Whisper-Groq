@@ -57,6 +57,46 @@ public class WhisperInputMethodService extends InputMethodService {
     private CountDownTimer countDownTimer;
     private String lastStatusMessage = "Pronto";
     private ObjectAnimator pulseAnimator;
+    private PopupWindow numbersPopup;
+
+    private void showNumbersPopup(View anchor) {
+        if (numbersPopup != null && numbersPopup.isShowing()) {
+            numbersPopup.dismiss();
+            return;
+        }
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setBackgroundResource(R.drawable.kb_button);
+        layout.setPadding(8, 8, 8, 8);
+
+        String[] nums = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
+        for (String n : nums) {
+            TextView btn = new TextView(this);
+            btn.setText(n);
+            btn.setTextSize(20);
+            btn.setTextColor(0xFFFFFFFF);
+            btn.setGravity(Gravity.CENTER);
+            btn.setBackgroundResource(R.drawable.kb_button);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    dpToPx(36), dpToPx(40));
+            lp.setMargins(dpToPx(2), 0, dpToPx(2), 0);
+            btn.setLayoutParams(lp);
+            btn.setOnClickListener(v -> {
+                safeCommit(n);
+                numbersPopup.dismiss();
+            });
+            layout.addView(btn);
+        }
+
+        numbersPopup = new PopupWindow(layout,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true);
+        numbersPopup.setElevation(8);
+        numbersPopup.showAsDropDown(anchor, 0, -dpToPx(60));
+    }
+
     private PopupWindow punctuationPopup;
 
     @Override
@@ -69,6 +109,7 @@ public class WhisperInputMethodService extends InputMethodService {
     public void onDestroy() {
         if (mRecorder != null && mRecorder.isInProgress()) mRecorder.stop();
         if (punctuationPopup != null) punctuationPopup.dismiss();
+        if (numbersPopup != null) numbersPopup.dismiss();
         super.onDestroy();
     }
 
@@ -198,7 +239,7 @@ public class WhisperInputMethodService extends InputMethodService {
         btnCut.setOnClickListener(v -> sendKeyWithMeta(KeyEvent.KEYCODE_X, KeyEvent.META_CTRL_ON));
         btnCopy.setOnClickListener(v -> sendKeyWithMeta(KeyEvent.KEYCODE_C, KeyEvent.META_CTRL_ON));
         btnPaste.setOnClickListener(v -> sendKeyWithMeta(KeyEvent.KEYCODE_V, KeyEvent.META_CTRL_ON));
-        btnNumbers.setOnClickListener(v -> showKeyboard());
+        btnNumbers.setOnClickListener(v -> showNumbersPopup(v));
 
         // Punctuation popup
         btnPunctuation.setOnClickListener(v -> showPunctuationPopup(v));
@@ -210,17 +251,6 @@ public class WhisperInputMethodService extends InputMethodService {
         InputConnection ic = getCurrentInputConnection();
         if (ic != null) ic.sendKeyEvent(new KeyEvent(0, 0, KeyEvent.ACTION_DOWN, keyCode, 0, meta));
         if (ic != null) ic.sendKeyEvent(new KeyEvent(0, 0, KeyEvent.ACTION_UP, keyCode, 0, meta));
-    }
-
-    private void showKeyboard() {
-        // Open the previous keyboard (not a hard keyboard)
-        try {
-            android.view.inputmethod.InputMethodManager imm =
-                    (android.view.inputmethod.InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showInputMethodPicker();
-            }
-        } catch (Exception ignored) {}
     }
 
     private void showPunctuationPopup(View anchor) {
