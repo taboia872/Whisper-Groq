@@ -18,9 +18,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.ImageButton;
-import android.animation.ObjectAnimator;
-import android.animation.AnimatorSet;
-import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,7 +45,7 @@ public class WhisperInputMethodService extends InputMethodService {
     private ImageButton btnPaste;
     private ImageButton btnPunctuation;
     private ImageButton btnNumbers;
-    private ImageButton btnStatus;
+    private ImageView btnStatus;
     private TextView tvStatus;
     private Recorder mRecorder = null;
     private Whisper mWhisper = null;
@@ -56,7 +54,6 @@ public class WhisperInputMethodService extends InputMethodService {
     private Context mContext;
     private CountDownTimer countDownTimer;
     private String lastStatusMessage = "Pronto";
-    private ObjectAnimator pulseAnimator;
     private PopupWindow numbersPopup;
 
     private void showNumbersPopup(View anchor) {
@@ -189,15 +186,12 @@ public class WhisperInputMethodService extends InputMethodService {
             public void onUpdateReceived(String message) {
                 if (message.equals(Recorder.MSG_RECORDING)) {
                     handler.post(() -> btnRecord.setImageResource(R.drawable.ic_mic_recording_48dp));
-                    startRecordingPulse();
                 } else if (message.equals(Recorder.MSG_RECORDING_DONE)) {
                     HapticFeedback.vibrateDone(mContext);
-                    stopRecordingPulse();
                     handler.post(() -> btnRecord.setImageResource(R.drawable.ic_mic_48dp));
                     startTranscription();
                 } else if (message.equals(Recorder.MSG_RECORDING_ERROR)) {
                     HapticFeedback.vibrateError(mContext);
-                    stopRecordingPulse();
                     if (countDownTimer != null) countDownTimer.cancel();
                     handler.post(() -> {
                         btnRecord.setImageResource(R.drawable.ic_mic_48dp);
@@ -346,29 +340,6 @@ public class WhisperInputMethodService extends InputMethodService {
                     tvStatus.setVisibility(View.VISIBLE);
                 });
             } catch (Exception ignored) {}
-        }
-    }
-
-    private void startRecordingPulse() {
-        stopRecordingPulse();
-        pulseAnimator = ObjectAnimator.ofFloat(btnRecord, "scaleX", 1.0f, 1.15f);
-        pulseAnimator.setDuration(600);
-        pulseAnimator.setRepeatMode(ObjectAnimator.REVERSE);
-        pulseAnimator.setRepeatCount(ObjectAnimator.INFINITE);
-        ObjectAnimator pulseY = ObjectAnimator.ofFloat(btnRecord, "scaleY", 1.0f, 1.15f);
-        pulseY.setDuration(600);
-        pulseY.setRepeatMode(ObjectAnimator.REVERSE);
-        pulseY.setRepeatCount(ObjectAnimator.INFINITE);
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(pulseAnimator, pulseY);
-        set.setInterpolator(new AccelerateDecelerateInterpolator());
-        set.start();
-    }
-
-    private void stopRecordingPulse() {
-        if (pulseAnimator != null) {
-            pulseAnimator.cancel();
-            btnRecord.animate().scaleX(1f).scaleY(1f).setDuration(200).start();
         }
     }
 
