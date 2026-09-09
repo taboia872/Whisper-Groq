@@ -50,6 +50,7 @@
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true"
             android:foregroundServiceType="microphone"
+            android:theme="@style/Theme.WhisperGroq.IME"
             android:label="@string/voice_input">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />

@@ -37,4 +37,9 @@
         <item name="android:windowBackground">@color/ime_surface</item>
     </style>
 
+    <!-- IME theme: pure Material3 DayNight so ?attr/color* (surface,
+         onSurface, primary, surfaceContainerHigh) always resolve, in light,
+         dark, or dynamic (via DynamicColors.wrapContextIfAvailable). -->
+    <style name="Theme.WhisperGroq.IME" parent="Theme.Material3.DayNight" />
+
 </resources>

@@ -147,7 +147,10 @@ public class WhisperInputMethodService extends InputMethodService {
     @Override
     public View onCreateInputView() {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
-        themedContext = ThemeUtils.wrapImeContext(this);
+        // Base the IME inflation on an explicit Material3 theme so ?attr/color*
+        // always resolve (the service's own context theme may not be Material).
+        Context base = new android.view.ContextThemeWrapper(this, R.style.Theme_WhisperGroq_IME);
+        themedContext = ThemeUtils.wrapImeContext(base);
         View view = LayoutInflater.from(themedContext).inflate(R.layout.voice_service, null);
 
         btnRecord = view.findViewById(R.id.btnRecord);
