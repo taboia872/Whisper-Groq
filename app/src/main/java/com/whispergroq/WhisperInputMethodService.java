@@ -8,6 +8,8 @@ import android.inputmethodservice.InputMethodService;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -152,6 +154,22 @@ public class WhisperInputMethodService extends InputMethodService {
         Context base = new android.view.ContextThemeWrapper(this, R.style.Theme_WhisperGroq_IME);
         themedContext = ThemeUtils.wrapImeContext(base);
         View view = LayoutInflater.from(themedContext).inflate(R.layout.voice_service, null);
+
+        // Pad the IME content by the system bar insets (nav/gesture bar) so the
+        // buttons sit above the navigation area instead of behind it. Padding
+        // (not margin) keeps the keyboard background extending edge-to-edge
+        // behind the bar, like stock keyboards.
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+            androidx.core.graphics.Insets bars = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars());
+            int basePad = dpToPx(6); // preserve the layout's original 6dp breathing room
+            v.setPadding(
+                    basePad + bars.left,
+                    basePad + bars.top,
+                    basePad + bars.right,
+                    basePad + bars.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
