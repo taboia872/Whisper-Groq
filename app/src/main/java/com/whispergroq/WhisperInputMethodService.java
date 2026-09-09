@@ -79,10 +79,7 @@ public class WhisperInputMethodService extends InputMethodService {
                     dpToPx(36), dpToPx(40));
             lp.setMargins(dpToPx(2), 0, dpToPx(2), 0);
             btn.setLayoutParams(lp);
-            btn.setOnClickListener(v -> {
-                safeCommit(n);
-                numbersPopup.dismiss();
-            });
+            btn.setOnClickListener(v -> safeCommit(n));
             layout.addView(btn);
         }
 
@@ -91,7 +88,9 @@ public class WhisperInputMethodService extends InputMethodService {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 true);
         numbersPopup.setElevation(8);
-        numbersPopup.showAsDropDown(anchor, 0, -dpToPx(60));
+        numbersPopup.setOutsideTouchable(true);
+        numbersPopup.setFocusable(false);
+        numbersPopup.showAsDropDown(anchor, 0, -dpToPx(110));
     }
 
     private PopupWindow punctuationPopup;
@@ -285,10 +284,7 @@ public class WhisperInputMethodService extends InputMethodService {
                     dpToPx(40), dpToPx(40));
             lp.setMargins(dpToPx(4), 0, dpToPx(4), 0);
             btn.setLayoutParams(lp);
-            btn.setOnClickListener(v -> {
-                safeCommit(p);
-                punctuationPopup.dismiss();
-            });
+            btn.setOnClickListener(v -> safeCommit(p));
             layout.addView(btn);
         }
 
@@ -297,7 +293,9 @@ public class WhisperInputMethodService extends InputMethodService {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 true);
         punctuationPopup.setElevation(8);
-        punctuationPopup.showAsDropDown(anchor, 0, -dpToPx(60));
+        punctuationPopup.setOutsideTouchable(true);
+        punctuationPopup.setFocusable(false);
+        punctuationPopup.showAsDropDown(anchor, 0, -dpToPx(110));
     }
 
     private int dpToPx(int dp) {
