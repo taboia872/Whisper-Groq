@@ -14,11 +14,11 @@
     <color name="text_primary">#1E1B29</color>
     <color name="text_secondary">#6B6385</color>
 
-    <!-- IME surface stays darker for contrast when overlaid on other apps -->
-    <color name="ime_surface">#221C30</color>
-    <color name="ime_surface_container_high">#2B2338</color>
-    <color name="ime_text_primary">#F0EAF8</color>
-    <color name="ime_accent">#A78BFA</color>
+    <!-- IME surface (light by default; values-night overrides to dark) -->
+    <color name="ime_surface">#FFFFFF</color>
+    <color name="ime_surface_container_high">#EDE9FE</color>
+    <color name="ime_text_primary">#1E1B29</color>
+    <color name="ime_accent">#7C3AED</color>
 
     <color name="recording">#DC2626</color>
 </resources>

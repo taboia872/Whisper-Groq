@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base app theme (light) -->
-    <style name="Theme.WhisperGroq" parent="Theme.Material3.Light.NoActionBar">
+    <!-- Base app theme (DayNight: switches light/dark with the system/delegate) -->
+    <style name="Theme.WhisperGroq" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorAccent</item>
         <item name="colorPrimaryVariant">@color/colorAccentDark</item>
         <item name="colorSecondary">@color/colorAccent</item>
@@ -14,8 +14,8 @@
         <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 
-    <!-- Light with action bar -->
-    <style name="Theme.WhisperGroq.ActionBar" parent="Theme.Material3.Light">
+    <!-- With action bar (DayNight) -->
+    <style name="Theme.WhisperGroq.ActionBar" parent="Theme.Material3.DayNight">
         <item name="colorPrimary">@color/colorAccent</item>
         <item name="colorPrimaryVariant">@color/colorAccentDark</item>
         <item name="colorSecondary">@color/colorAccent</item>

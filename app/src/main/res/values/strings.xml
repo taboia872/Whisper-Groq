@@ -34,8 +34,8 @@
     <string name="stop_button">Stop recording</string>
     <string name="whisper_test">Whisper-Groq</string>
     <string name="settings_theme">App theme</string>
-    <string name="theme_purple">Purple (default)</string>
-    <string name="theme_teal">Teal</string>
-    <string name="theme_pink">Pink</string>
-    <string name="theme_dynamic">Wallpaper (Android 12+)</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System default</string>
+    <string name="theme_dynamic">Wallpaper (dynamic)</string>
 </resources>

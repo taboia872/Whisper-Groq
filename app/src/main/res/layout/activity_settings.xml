@@ -133,6 +133,20 @@
                 android:text="@string/toggle_auto_mode"
                 android:textSize="14sp" />
 
+            <!-- Theme -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:textSize="20sp"
+                android:text="@string/settings_theme" />
+
+            <Spinner
+                android:id="@+id/spinnerTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" />
+
         </LinearLayout>
     </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

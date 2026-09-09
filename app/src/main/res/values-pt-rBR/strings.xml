@@ -30,8 +30,8 @@
     <string name="stop_button">Parar gravação</string>
     <string name="whisper_test">Whisper-Groq</string>
     <string name="settings_theme">Tema do app</string>
-    <string name="theme_purple">Roxo (padrão)</string>
-    <string name="theme_teal">Turquesa</string>
-    <string name="theme_pink">Rosa</string>
-    <string name="theme_dynamic">Papel de parede (Android 12+)</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Escuro</string>
+    <string name="theme_system">Padrão do sistema</string>
+    <string name="theme_dynamic">Papel de parede (dinâmico)</string>
 </resources>

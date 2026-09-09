@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark variants of the app's light theme colors -->
+    <color name="colorAccent">#A78BFA</color>
+    <color name="colorAccentDark">#7C3AED</color>
+    <color name="windowBackground">#121212</color>
+    <color name="surface">#121212</color>
+    <color name="surface_container">#1E1B29</color>
+    <color name="surface_container_high">#2B2338</color>
+    <color name="text_primary">#F0EAF8</color>
+    <color name="text_secondary">#B8B0C8</color>
+
+    <!-- IME surface (dark) -->
+    <color name="ime_surface">#221C30</color>
+    <color name="ime_surface_container_high">#2B2338</color>
+    <color name="ime_text_primary">#F0EAF8</color>
+    <color name="ime_accent">#A78BFA</color>
+</resources>

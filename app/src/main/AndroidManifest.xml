@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
 
     <application
+        android:name=".WhisperApp"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"

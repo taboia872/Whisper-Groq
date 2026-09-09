@@ -40,6 +40,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeUtils.applyDynamicIfNeeded(this);
         setContentView(R.layout.activity_settings);
         ThemeUtils.setStatusBarAppearance(this);
         ActionBar actionBar = getSupportActionBar();
@@ -78,6 +79,46 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sp.edit().putString("groq_model", MODELS[position]).apply();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // Theme spinner
+        Spinner spinnerTheme = findViewById(R.id.spinnerTheme);
+        final String[] THEME_MODES = {
+                com.whispergroq.utils.ThemeUtils.MODE_LIGHT,
+                com.whispergroq.utils.ThemeUtils.MODE_DARK,
+                com.whispergroq.utils.ThemeUtils.MODE_SYSTEM,
+                com.whispergroq.utils.ThemeUtils.MODE_DYNAMIC
+        };
+        String[] themeLabels = {
+                getString(R.string.theme_light),
+                getString(R.string.theme_dark),
+                getString(R.string.theme_system),
+                getString(R.string.theme_dynamic)
+        };
+        ArrayAdapter<String> themeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, themeLabels);
+        themeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerTheme.setAdapter(themeAdapter);
+        String currentTheme = sp.getString(com.whispergroq.utils.ThemeUtils.PREF_THEME_MODE,
+                com.whispergroq.utils.ThemeUtils.MODE_SYSTEM);
+        int themeIndex = 2; // default SYSTEM
+        for (int i = 0; i < THEME_MODES.length; i++) {
+            if (THEME_MODES[i].equals(currentTheme)) { themeIndex = i; break; }
+        }
+        spinnerTheme.setSelection(themeIndex);
+        spinnerTheme.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = THEME_MODES[position];
+                String previous = sp.getString(com.whispergroq.utils.ThemeUtils.PREF_THEME_MODE,
+                        com.whispergroq.utils.ThemeUtils.MODE_SYSTEM);
+                if (!selected.equals(previous)) {
+                    sp.edit().putString(com.whispergroq.utils.ThemeUtils.PREF_THEME_MODE, selected).apply();
+                    // Apply immediately so the user sees the change, then recreate.
+                    com.whispergroq.utils.ThemeUtils.applyTheme(SettingsActivity.this);
+                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
