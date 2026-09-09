@@ -5,6 +5,6 @@
     android:viewportHeight="960">
   <!-- Material Symbols: autorenew filled (active) -->
   <path
-      android:fillColor="@color/ime_accent"
+      android:fillColor="?attr/colorPrimary"
       android:pathData="M204,318q48,-63 123,-100.5T480,180q86,0 158.5,32T764,280h76v-196h-60v99q-51,-63 -129,-97.5T480,50q-104,0 -192.5,47.5T184,228M480,880q-86,0 -158.5,-32T196,680h-76v196h60v-99q51,63 129,97.5T480,910q104,0 192.5,-47.5T776,732l-58,-54q-48,63 -123,100.5T480,780Z"/>
 </vector>

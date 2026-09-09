@@ -58,6 +58,19 @@ public class ThemeUtils {
         return MODE_DYNAMIC.equals(sp.getString(PREF_THEME_MODE, MODE_SYSTEM));
     }
 
+    /**
+     * Wrap a context so that ?attr/color* resolves to wallpaper-based dynamic
+     * colors when the user selected the dynamic theme. Used by the IME service
+     * (not an Activity, so DynamicColors does not apply automatically). Falls
+     * back to the plain context for non-dynamic modes.
+     */
+    public static Context wrapImeContext(Context base) {
+        if (isDynamicTheme(base)) {
+            return DynamicColors.wrapContextIfAvailable(base);
+        }
+        return base;
+    }
+
     public static void setStatusBarAppearance(Activity activity) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             int nightModeFlags = activity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;

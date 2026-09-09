@@ -8,8 +8,6 @@ import android.inputmethodservice.InputMethodService;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -28,10 +26,13 @@ import android.view.LayoutInflater;
 
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.color.MaterialColors;
+
 import com.whispergroq.asr.Recorder;
 import com.whispergroq.asr.Whisper;
 import com.whispergroq.asr.WhisperResult;
 import com.whispergroq.utils.HapticFeedback;
+import com.whispergroq.utils.ThemeUtils;
 
 public class WhisperInputMethodService extends InputMethodService {
     private static final String TAG = "WhisperInputMethodService";
@@ -52,6 +53,7 @@ public class WhisperInputMethodService extends InputMethodService {
     private SharedPreferences sp = null;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Context mContext;
+    private Context themedContext;
     private CountDownTimer countDownTimer;
     private String lastStatusMessage = "Pronto";
     private PopupWindow numbersPopup;
@@ -62,17 +64,18 @@ public class WhisperInputMethodService extends InputMethodService {
             return;
         }
 
-        LinearLayout layout = new LinearLayout(this);
+        Context ctx = themedContext != null ? themedContext : this;
+        LinearLayout layout = new LinearLayout(ctx);
         layout.setOrientation(LinearLayout.HORIZONTAL);
         layout.setBackgroundResource(R.drawable.kb_button);
         layout.setPadding(8, 8, 8, 8);
 
         String[] nums = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
         for (String n : nums) {
-            TextView btn = new TextView(this);
+            TextView btn = new TextView(ctx);
             btn.setText(n);
             btn.setTextSize(20);
-            btn.setTextColor(0xFFFFFFFF);
+            btn.setTextColor(onSurfaceColor(ctx));
             btn.setGravity(Gravity.CENTER);
             btn.setBackgroundResource(R.drawable.kb_button);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -144,21 +147,8 @@ public class WhisperInputMethodService extends InputMethodService {
     @Override
     public View onCreateInputView() {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
-        View view = getLayoutInflater().inflate(R.layout.voice_service, null);
-
-        try {
-            ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
-                try {
-                    androidx.core.graphics.Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                    mlp.leftMargin = insets.left;
-                    mlp.bottomMargin = insets.bottom;
-                    mlp.rightMargin = insets.right;
-                    v.setLayoutParams(mlp);
-                } catch (Exception ignored) {}
-                return WindowInsetsCompat.CONSUMED;
-            });
-        } catch (Exception ignored) {}
+        themedContext = ThemeUtils.wrapImeContext(this);
+        View view = LayoutInflater.from(themedContext).inflate(R.layout.voice_service, null);
 
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
@@ -267,17 +257,18 @@ public class WhisperInputMethodService extends InputMethodService {
             return;
         }
 
-        LinearLayout layout = new LinearLayout(this);
+        Context ctx = themedContext != null ? themedContext : this;
+        LinearLayout layout = new LinearLayout(ctx);
         layout.setOrientation(LinearLayout.HORIZONTAL);
         layout.setBackgroundResource(R.drawable.kb_button);
         layout.setPadding(8, 8, 8, 8);
 
         String[] puncts = {".", ",", "?", "!", ":", ";", "-", "(", ")", "\"", "'"};
         for (String p : puncts) {
-            TextView btn = new TextView(this);
+            TextView btn = new TextView(ctx);
             btn.setText(p);
             btn.setTextSize(20);
-            btn.setTextColor(0xFFFFFFFF);
+            btn.setTextColor(onSurfaceColor(ctx));
             btn.setGravity(Gravity.CENTER);
             btn.setBackgroundResource(R.drawable.kb_button);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -300,6 +291,11 @@ public class WhisperInputMethodService extends InputMethodService {
 
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
+    }
+
+    /** Resolve ?attr/colorOnSurface against the (possibly dynamic) IME context. */
+    private int onSurfaceColor(Context ctx) {
+        return MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorOnSurface, 0xFFFFFFFF);
     }
 
     private void safeCommit(String text) {
