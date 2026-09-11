@@ -10,10 +10,12 @@ Baseado em [whisperIMEplus](https://github.com/woheller69/whisperIMEplus) por wo
 - **RecognitionService**: selecionável como entrada de voz padrão do sistema
 - **RecognizerIntent**: outros apps podem chamar via `ACTION_RECOGNIZE_SPEECH`
 - **Tap-to-record** (sem segurar), limite configurável (5–300s, default 60s)
-- **Botões estáveis**: `. , ! ? ␣ Backspace Enter` na mesma linha, todos com tamanho uniforme
+- **Botões de edição**: selecionar tudo, recortar, copiar, colar
+- **Popups de números e pontuação**: ficam abertos para digitar sequências (só fecham ao tocar fora)
+- **LED de status** no teclado (idle/ocupado/ok/erro — toque para ver o último erro)
+- **Temas**: claro, escuro, padrão do sistema e dinâmico (cores do papel de parede, Android 12+)
 - **Idioma auto-detectado** pela API Whisper
-- **API key criptografada** com Android Keystore (AES-256)
-- **Tema claro** no app principal / escuro no IME para contraste sobre outros apps
+- **API key criptografada** com Android Keystore (AES-256), com rotação de até 3 chaves em caso de erro de autenticação
 
 ## Instalação
 
@@ -31,6 +33,7 @@ Baseado em [whisperIMEplus](https://github.com/woheller69/whisperIMEplus) por wo
 
 ## Requisitos
 
+- Android 12 ou superior (API 31+)
 - Internet
 - API key Groq (grátis em console.groq.com)
 
