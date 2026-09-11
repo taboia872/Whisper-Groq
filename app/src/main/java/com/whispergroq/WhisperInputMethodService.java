@@ -54,8 +54,6 @@ public class WhisperInputMethodService extends InputMethodService {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Context mContext;
     private Context themedContext;
-    private View mInputView;
-    private android.widget.LinearLayout mImeContent;
     private CountDownTimer countDownTimer;
     private String lastStatusMessage = "Pronto";
     private PopupWindow numbersPopup;
@@ -109,77 +107,17 @@ public class WhisperInputMethodService extends InputMethodService {
     @Override
     public void onComputeInsets(InputMethodService.Insets outInsets) {
         super.onComputeInsets(outInsets);
-        if (mImeContent == null) return;
-
-        final int keyboardHeight = mImeContent.getHeight();
-        if (keyboardHeight <= 0) return;
-
-        // The window/inputArea/inputView are expanded to the full screen (see
-        // updateSoftInputWindowLayoutParameters) and the keyboard content is
-        // anchored to the bottom. The visible keyboard is the bottom
-        // keyboardHeight px, so its top edge sits at (totalHeight - keyboardHeight).
-        // Force the touchable region to that exact area so the bottom row never
-        // renders behind the nav/gesture bar.
-        final int totalHeight = mInputView != null ? mInputView.getHeight() : 0;
-        final int visibleTopY = Math.max(0, totalHeight - keyboardHeight);
-
-        outInsets.contentTopInsets = visibleTopY;
-        outInsets.visibleTopInsets = visibleTopY;
-        outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_REGION;
-        outInsets.touchableRegion.set(0, visibleTopY, mImeContent.getWidth(), totalHeight);
+        // Keep the framework's computed insets (which already account for the
+        // navigation/gesture bar area) and only force the touchable region to
+        // the visible keyboard so the bottom row stays responsive. We do NOT
+        // expand the soft-input window to MATCH_PARENT: that mis-places the
+        // keyboard below the system bars.
+        outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_VISIBLE;
     }
 
     @Override
     public boolean onEvaluateFullscreenMode() {
         return false;
-    }
-
-    @Override
-    public void setInputView(View view) {
-        super.setInputView(view);
-        mInputView = view;
-        updateSoftInputWindowLayoutParameters();
-    }
-
-    /**
-     * Expand the soft-input window (and its inner inputArea / input view) to
-     * the full screen height, anchored to the bottom, in non-fullscreen mode.
-     * This lets the framework apply system-bar insets correctly so the keyboard
-     * never renders behind the navigation/gesture bar (edge-to-edge). Adapted
-     * from AOSP LatinIME / HeliBoard.
-     */
-    private void updateSoftInputWindowLayoutParameters() {
-        android.app.Dialog dialog = getWindow();
-        if (dialog == null || dialog.getWindow() == null) return;
-        android.view.Window window = dialog.getWindow();
-
-        final ViewGroup.LayoutParams winParams = window.getAttributes();
-        if (winParams == null) return;
-        if (winParams.height != ViewGroup.LayoutParams.MATCH_PARENT) {
-            winParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
-            window.setAttributes((android.view.WindowManager.LayoutParams) winParams);
-        }
-
-        if (mInputView == null) return;
-        final int layoutHeight = ViewGroup.LayoutParams.MATCH_PARENT;
-
-        // inputArea: the framework container (FrameLayout) that holds the
-        // input view. Expand it to full height and anchor it to the bottom.
-        View inputArea = window.findViewById(android.R.id.inputArea);
-        if (inputArea != null && inputArea.getLayoutParams() != null) {
-            ViewGroup.LayoutParams ap = inputArea.getLayoutParams();
-            ap.height = layoutHeight;
-            if (ap instanceof android.widget.FrameLayout.LayoutParams) {
-                ((android.widget.FrameLayout.LayoutParams) ap).gravity = android.view.Gravity.BOTTOM;
-            }
-            inputArea.setLayoutParams(ap);
-        }
-
-        ViewGroup.LayoutParams iv = mInputView.getLayoutParams();
-        if (iv != null && iv.height != layoutHeight) {
-            iv.height = layoutHeight;
-            mInputView.setLayoutParams(iv);
-        }
     }
 
     @Override
@@ -228,7 +166,6 @@ public class WhisperInputMethodService extends InputMethodService {
         btnEnter = view.findViewById(R.id.btnEnter);
         btnStatus = view.findViewById(R.id.btnStatus);
         tvStatus = view.findViewById(R.id.tv_status);
-        mImeContent = view.findViewById(R.id.ime_content);
 
         btnStatus.setOnClickListener(v ->
             Toast.makeText(mContext, lastStatusMessage, Toast.LENGTH_SHORT).show()
