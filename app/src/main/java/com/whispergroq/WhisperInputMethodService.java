@@ -8,8 +8,6 @@ import android.inputmethodservice.InputMethodService;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -56,6 +54,8 @@ public class WhisperInputMethodService extends InputMethodService {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Context mContext;
     private Context themedContext;
+    private View mInputView;
+    private android.widget.LinearLayout mImeContent;
     private CountDownTimer countDownTimer;
     private String lastStatusMessage = "Pronto";
     private PopupWindow numbersPopup;
@@ -109,16 +109,77 @@ public class WhisperInputMethodService extends InputMethodService {
     @Override
     public void onComputeInsets(InputMethodService.Insets outInsets) {
         super.onComputeInsets(outInsets);
-        // When the target app is fullscreen (hides system bars), Android
-        // computes the IME area as if the nav bar were still visible,
-        // clipping our bottom buttons. Force the touchable area to the
-        // full visible frame so the second button row stays on screen.
-        outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_VISIBLE;
+        if (mImeContent == null) return;
+
+        final int keyboardHeight = mImeContent.getHeight();
+        if (keyboardHeight <= 0) return;
+
+        // The window/inputArea/inputView are expanded to the full screen (see
+        // updateSoftInputWindowLayoutParameters) and the keyboard content is
+        // anchored to the bottom. The visible keyboard is the bottom
+        // keyboardHeight px, so its top edge sits at (totalHeight - keyboardHeight).
+        // Force the touchable region to that exact area so the bottom row never
+        // renders behind the nav/gesture bar.
+        final int totalHeight = mInputView != null ? mInputView.getHeight() : 0;
+        final int visibleTopY = Math.max(0, totalHeight - keyboardHeight);
+
+        outInsets.contentTopInsets = visibleTopY;
+        outInsets.visibleTopInsets = visibleTopY;
+        outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_REGION;
+        outInsets.touchableRegion.set(0, visibleTopY, mImeContent.getWidth(), totalHeight);
     }
 
     @Override
     public boolean onEvaluateFullscreenMode() {
         return false;
+    }
+
+    @Override
+    public void setInputView(View view) {
+        super.setInputView(view);
+        mInputView = view;
+        updateSoftInputWindowLayoutParameters();
+    }
+
+    /**
+     * Expand the soft-input window (and its inner inputArea / input view) to
+     * the full screen height, anchored to the bottom, in non-fullscreen mode.
+     * This lets the framework apply system-bar insets correctly so the keyboard
+     * never renders behind the navigation/gesture bar (edge-to-edge). Adapted
+     * from AOSP LatinIME / HeliBoard.
+     */
+    private void updateSoftInputWindowLayoutParameters() {
+        android.app.Dialog dialog = getWindow();
+        if (dialog == null || dialog.getWindow() == null) return;
+        android.view.Window window = dialog.getWindow();
+
+        final ViewGroup.LayoutParams winParams = window.getAttributes();
+        if (winParams == null) return;
+        if (winParams.height != ViewGroup.LayoutParams.MATCH_PARENT) {
+            winParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            window.setAttributes((android.view.WindowManager.LayoutParams) winParams);
+        }
+
+        if (mInputView == null) return;
+        final int layoutHeight = ViewGroup.LayoutParams.MATCH_PARENT;
+
+        // inputArea: the framework container (FrameLayout) that holds the
+        // input view. Expand it to full height and anchor it to the bottom.
+        View inputArea = window.findViewById(android.R.id.inputArea);
+        if (inputArea != null && inputArea.getLayoutParams() != null) {
+            ViewGroup.LayoutParams ap = inputArea.getLayoutParams();
+            ap.height = layoutHeight;
+            if (ap instanceof android.widget.FrameLayout.LayoutParams) {
+                ((android.widget.FrameLayout.LayoutParams) ap).gravity = android.view.Gravity.BOTTOM;
+            }
+            inputArea.setLayoutParams(ap);
+        }
+
+        ViewGroup.LayoutParams iv = mInputView.getLayoutParams();
+        if (iv != null && iv.height != layoutHeight) {
+            iv.height = layoutHeight;
+            mInputView.setLayoutParams(iv);
+        }
     }
 
     @Override
@@ -155,22 +216,6 @@ public class WhisperInputMethodService extends InputMethodService {
         themedContext = ThemeUtils.wrapImeContext(base);
         View view = LayoutInflater.from(themedContext).inflate(R.layout.voice_service, null);
 
-        // Pad the IME content by the system bar insets (nav/gesture bar) so the
-        // buttons sit above the navigation area instead of behind it. Padding
-        // (not margin) keeps the keyboard background extending edge-to-edge
-        // behind the bar, like stock keyboards.
-        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
-            androidx.core.graphics.Insets bars = windowInsets.getInsets(
-                    WindowInsetsCompat.Type.systemBars());
-            int basePad = dpToPx(6); // preserve the layout's original 6dp breathing room
-            v.setPadding(
-                    basePad + bars.left,
-                    basePad + bars.top,
-                    basePad + bars.right,
-                    basePad + bars.bottom);
-            return WindowInsetsCompat.CONSUMED;
-        });
-
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
         btnSelectAll = view.findViewById(R.id.btnSelectAll);
@@ -183,6 +228,7 @@ public class WhisperInputMethodService extends InputMethodService {
         btnEnter = view.findViewById(R.id.btnEnter);
         btnStatus = view.findViewById(R.id.btnStatus);
         tvStatus = view.findViewById(R.id.tv_status);
+        mImeContent = view.findViewById(R.id.ime_content);
 
         btnStatus.setOnClickListener(v ->
             Toast.makeText(mContext, lastStatusMessage, Toast.LENGTH_SHORT).show()
