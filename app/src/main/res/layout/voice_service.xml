@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  Root FrameLayout fills the entire soft-input window (MATCH_PARENT) so the
+  framework can apply navigation/status-bar insets and lift the keyboard box
+  above the Android system buttons instead of rendering it behind them. The
+  inner LinearLayout ("ime_content") is the actual rounded keyboard box and is
+  unchanged in appearance; it is simply anchored to the bottom of this wrapper.
+  The wrapper paints the IME surface color so the area behind the system
+  buttons is opaque (matches the theme), like stock keyboards.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ime_wrapper"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:clipToPadding="false"
-    android:padding="6dp">
+    android:layout_height="match_parent"
+    android:background="@color/ime_surface">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ime_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:clipToPadding="false"
+        android:padding="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -191,3 +208,4 @@
 
     </LinearLayout>
 </LinearLayout>
+</FrameLayout>

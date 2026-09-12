@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.ImageButton;
@@ -25,6 +27,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 
 import com.google.android.material.color.MaterialColors;
 
@@ -54,6 +59,8 @@ public class WhisperInputMethodService extends InputMethodService {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Context mContext;
     private Context themedContext;
+    private View mInputView;
+    private View mImeContent;
     private CountDownTimer countDownTimer;
     private String lastStatusMessage = "Pronto";
     private PopupWindow numbersPopup;
@@ -107,12 +114,65 @@ public class WhisperInputMethodService extends InputMethodService {
     @Override
     public void onComputeInsets(InputMethodService.Insets outInsets) {
         super.onComputeInsets(outInsets);
-        // Keep the framework's computed insets (which already account for the
-        // navigation/gesture bar area) and only force the touchable region to
-        // the visible keyboard so the bottom row stays responsive. We do NOT
-        // expand the soft-input window to MATCH_PARENT: that mis-places the
-        // keyboard below the system bars.
+        if (mImeContent == null) return;
+
+        final int contentHeight = mImeContent.getHeight();
+        if (contentHeight <= 0) return;
+
+        // The soft-input window and its inputView are expanded to fill the
+        // screen (see updateSoftInputWindowLayoutParameters) and the keyboard
+        // box ("ime_content") is anchored to the bottom. The visible keyboard
+        // is the bottom contentHeight px, so its top edge sits at
+        // (totalHeight - contentHeight). Force the visible/touchable region to
+        // that exact area so the box never renders behind the Android system
+        // buttons — the wrapper's opaque background covers the gap below it.
+        final int totalHeight = mInputView != null ? mInputView.getHeight() : 0;
+        final int visibleTopY = Math.max(0, totalHeight - contentHeight);
+
+        outInsets.contentTopInsets = visibleTopY;
+        outInsets.visibleTopInsets = visibleTopY;
         outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_VISIBLE;
+    }
+
+    @Override
+    public void setInputView(View view) {
+        super.setInputView(view);
+        mInputView = view;
+        mImeContent = view.findViewById(R.id.ime_content);
+        updateSoftInputWindowLayoutParameters();
+    }
+
+    /**
+     * Expand the soft-input window (and its inner inputArea / input view) to
+     * the full screen height, anchored to the bottom, in non-fullscreen mode.
+     * This lets the framework apply system-bar insets correctly so the keyboard
+     * box lifts above the navigation bar/buttons instead of rendering behind
+     * them. The wrapper paints the IME surface color so the area behind the
+     * buttons is opaque. Adapted from AOSP LatinIME / HeliBoard.
+     */
+    private void updateSoftInputWindowLayoutParameters() {
+        Window window = getWindow().getWindow();
+        if (window == null) return;
+
+        window.getDecorView().setPadding(0, 0, 0, 0);
+
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.gravity = android.view.Gravity.BOTTOM;
+        window.setAttributes(lp);
+
+        if (mImeContent != null) {
+            // Pad the content box by the navigation-bar height so the keys sit
+            // above the system buttons; the wrapper stays edge-to-edge behind
+            // them (opaque background).
+            ViewCompat.setOnApplyWindowInsetsListener(mImeContent, (v, insets) -> {
+                Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(v.getPaddingLeft(), v.getPaddingTop(),
+                        v.getPaddingRight(), bars.bottom);
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
     }
 
     @Override
