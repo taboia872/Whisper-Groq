@@ -29,7 +29,6 @@ import android.view.LayoutInflater;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.graphics.Insets;
 
 import com.google.android.material.color.MaterialColors;
 
@@ -167,7 +166,7 @@ public class WhisperInputMethodService extends InputMethodService {
             // above the system buttons; the wrapper stays edge-to-edge behind
             // them (opaque background).
             ViewCompat.setOnApplyWindowInsetsListener(mImeContent, (v, insets) -> {
-                Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                androidx.core.graphics.Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
                 v.setPadding(v.getPaddingLeft(), v.getPaddingTop(),
                         v.getPaddingRight(), bars.bottom);
                 return WindowInsetsCompat.CONSUMED;
