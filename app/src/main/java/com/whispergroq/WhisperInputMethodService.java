@@ -13,8 +13,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.ImageButton;
@@ -27,8 +25,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 
 import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.color.MaterialColors;
 
@@ -58,8 +54,6 @@ public class WhisperInputMethodService extends InputMethodService {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Context mContext;
     private Context themedContext;
-    private View mInputView;
-    private View mImeContent;
     private CountDownTimer countDownTimer;
     private String lastStatusMessage = "Pronto";
     private PopupWindow numbersPopup;
@@ -113,40 +107,11 @@ public class WhisperInputMethodService extends InputMethodService {
     @Override
     public void onComputeInsets(InputMethodService.Insets outInsets) {
         super.onComputeInsets(outInsets);
-        if (mImeContent == null) return;
-
-        final int contentHeight = mImeContent.getHeight();
-        if (contentHeight <= 0) return;
-
-        // The soft-input window and its inputView are expanded to fill the
-        // screen (see updateSoftInputWindowLayoutParameters) and the keyboard
-        // box ("ime_content") is anchored to the bottom. The visible keyboard
-        // is the bottom contentHeight px, so its top edge sits at
-        // (windowHeight - contentHeight). We read the actual height of the IME
-        // window's decor view (not the input view's own height) so the position
-        // is correct even on the first show, before the expanded layout has
-        // propagated.
-        int windowHeight = 0;
-        Window w = getWindow().getWindow();
-        if (w != null && w.getDecorView() != null) {
-            windowHeight = w.getDecorView().getHeight();
-        }
-        if (windowHeight <= 0 && mInputView != null) {
-            windowHeight = mInputView.getHeight();
-        }
-        final int visibleTopY = Math.max(0, windowHeight - contentHeight);
-
-        outInsets.contentTopInsets = visibleTopY;
-        outInsets.visibleTopInsets = visibleTopY;
+        // Let the framework position the keyboard (bottom, above the nav bar).
+        // Only force the touchable region to the visible keyboard so the bottom
+        // row stays responsive. No custom top-inset math: that mis-placed the
+        // box to the top of the screen.
         outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_VISIBLE;
-    }
-
-    @Override
-    public void setInputView(View view) {
-        super.setInputView(view);
-        mInputView = view;
-        mImeContent = view.findViewById(R.id.ime_content);
-        updateSoftInputWindowLayoutParameters();
     }
 
     @Override
@@ -155,56 +120,6 @@ public class WhisperInputMethodService extends InputMethodService {
         if (btnKeyboard != null) {
             boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
             btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
-        }
-    }
-
-    @Override
-    public void onWindowShown() {
-        super.onWindowShown();
-        // The soft-input window is now actually visible; its height is final.
-        // Re-apply the MATCH_PARENT layout params and recompute insets so the
-        // keyboard box anchors to the bottom instead of the top. This is the
-        // correct hook: onComputeInsets fires before the window is laid out on
-        // the first show (e.g. switching IMEs via the mic button).
-        if (mInputView != null) {
-            mInputView.post(() -> {
-                updateSoftInputWindowLayoutParameters();
-                updateInputViewShown();
-            });
-        }
-    }
-
-    /**
-     * Expand the soft-input window (and its inner inputArea / input view) to
-     * the full screen height, anchored to the bottom, in non-fullscreen mode.
-     * This lets the framework apply system-bar insets correctly so the keyboard
-     * box lifts above the navigation bar/buttons instead of rendering behind
-     * them. The window is translucent and the wrapper paints nothing, so the
-     * area outside the rounded box is transparent (app shows through). Adapted
-     * from AOSP LatinIME / HeliBoard.
-     */
-    private void updateSoftInputWindowLayoutParameters() {
-        Window window = getWindow().getWindow();
-        if (window == null) return;
-
-        window.getDecorView().setPadding(0, 0, 0, 0);
-
-        WindowManager.LayoutParams lp = window.getAttributes();
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.gravity = android.view.Gravity.BOTTOM;
-        window.setAttributes(lp);
-
-        if (mImeContent != null) {
-            // Pad the content box by the navigation-bar height so the keys sit
-            // above the system buttons; the wrapper stays edge-to-edge behind
-            // them (transparent, so the app shows through).
-            ViewCompat.setOnApplyWindowInsetsListener(mImeContent, (v, insets) -> {
-                androidx.core.graphics.Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                v.setPadding(v.getPaddingLeft(), v.getPaddingTop(),
-                        v.getPaddingRight(), bars.bottom);
-                return WindowInsetsCompat.CONSUMED;
-            });
         }
     }
 
