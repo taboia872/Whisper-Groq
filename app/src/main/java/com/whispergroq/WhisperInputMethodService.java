@@ -9,7 +9,6 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.preference.PreferenceManager;
-import android.graphics.Rect;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -123,12 +122,18 @@ public class WhisperInputMethodService extends InputMethodService {
         // screen (see updateSoftInputWindowLayoutParameters) and the keyboard
         // box ("ime_content") is anchored to the bottom. The visible keyboard
         // is the bottom contentHeight px, so its top edge sits at
-        // (windowHeight - contentHeight). We read the actual content rect of
-        // the IME window (not the view's own height) so the position is correct
-        // even on the first show, before the expanded layout has propagated.
-        final Rect contentRect = new Rect();
-        getContentRect(contentRect);
-        final int windowHeight = contentRect.height();
+        // (windowHeight - contentHeight). We read the actual height of the IME
+        // window's decor view (not the input view's own height) so the position
+        // is correct even on the first show, before the expanded layout has
+        // propagated.
+        int windowHeight = 0;
+        Window w = getWindow().getWindow();
+        if (w != null && w.getDecorView() != null) {
+            windowHeight = w.getDecorView().getHeight();
+        }
+        if (windowHeight <= 0 && mInputView != null) {
+            windowHeight = mInputView.getHeight();
+        }
         final int visibleTopY = Math.max(0, windowHeight - contentHeight);
 
         outInsets.contentTopInsets = visibleTopY;

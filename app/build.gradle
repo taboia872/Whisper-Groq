@@ -10,8 +10,8 @@ android {
         applicationId "com.whispergroq"
         minSdk 31
         targetSdk 35
-        versionCode 48
-        versionName "1.8.22"
+        versionCode 49
+        versionName "1.8.24"
     }
 
     buildFeatures {
