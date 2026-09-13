@@ -9,6 +9,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.preference.PreferenceManager;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -122,11 +123,13 @@ public class WhisperInputMethodService extends InputMethodService {
         // screen (see updateSoftInputWindowLayoutParameters) and the keyboard
         // box ("ime_content") is anchored to the bottom. The visible keyboard
         // is the bottom contentHeight px, so its top edge sits at
-        // (totalHeight - contentHeight). Force the visible/touchable region to
-        // that exact area so the box never renders behind the Android system
-        // buttons — the wrapper's opaque background covers the gap below it.
-        final int totalHeight = mInputView != null ? mInputView.getHeight() : 0;
-        final int visibleTopY = Math.max(0, totalHeight - contentHeight);
+        // (windowHeight - contentHeight). We read the actual content rect of
+        // the IME window (not the view's own height) so the position is correct
+        // even on the first show, before the expanded layout has propagated.
+        final Rect contentRect = new Rect();
+        getContentRect(contentRect);
+        final int windowHeight = contentRect.height();
+        final int visibleTopY = Math.max(0, windowHeight - contentHeight);
 
         outInsets.contentTopInsets = visibleTopY;
         outInsets.visibleTopInsets = visibleTopY;
@@ -148,16 +151,20 @@ public class WhisperInputMethodService extends InputMethodService {
             boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
             btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
         }
-        // Recompute the window layout/insets once the input view is laid out.
-        // On first show (e.g. switching from another IME via the mic button)
-        // onComputeInsets fires before layout, so the box can appear at the top
-        // of the screen; force a re-measure/re-align to anchor it to the bottom.
+    }
+
+    @Override
+    public void onWindowShown() {
+        super.onWindowShown();
+        // The soft-input window is now actually visible; its height is final.
+        // Re-apply the MATCH_PARENT layout params and recompute insets so the
+        // keyboard box anchors to the bottom instead of the top. This is the
+        // correct hook: onComputeInsets fires before the window is laid out on
+        // the first show (e.g. switching IMEs via the mic button).
         if (mInputView != null) {
             mInputView.post(() -> {
-                if (mInputView != null) {
-                    updateSoftInputWindowLayoutParameters();
-                    updateInputViewShown();
-                }
+                updateSoftInputWindowLayoutParameters();
+                updateInputViewShown();
             });
         }
     }
