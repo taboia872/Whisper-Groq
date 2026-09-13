@@ -39,7 +39,12 @@
 
     <!-- IME theme: pure Material3 DayNight so ?attr/color* (surface,
          onSurface, primary, surfaceContainerHigh) always resolve, in light,
-         dark, or dynamic (via DynamicColors.wrapContextIfAvailable). -->
-    <style name="Theme.WhisperGroq.IME" parent="Theme.Material3.DayNight" />
+         dark, or dynamic (via DynamicColors.wrapContextIfAvailable).
+         Transparent window: the soft-input window paints nothing of its own,
+         so the area behind the rounded keyboard box shows the app behind it. -->
+    <style name="Theme.WhisperGroq.IME" parent="Theme.Material3.DayNight">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 
 </resources>

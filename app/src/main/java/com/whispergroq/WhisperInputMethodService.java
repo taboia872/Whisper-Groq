@@ -141,13 +141,35 @@ public class WhisperInputMethodService extends InputMethodService {
         updateSoftInputWindowLayoutParameters();
     }
 
+    @Override
+    public void onStartInputView(EditorInfo attribute, boolean restarting) {
+        if (mWhisper == null) initModel();
+        if (btnKeyboard != null) {
+            boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
+            btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
+        }
+        // Recompute the window layout/insets once the input view is laid out.
+        // On first show (e.g. switching from another IME via the mic button)
+        // onComputeInsets fires before layout, so the box can appear at the top
+        // of the screen; force a re-measure/re-align to anchor it to the bottom.
+        if (mInputView != null) {
+            mInputView.post(() -> {
+                if (mInputView != null) {
+                    updateSoftInputWindowLayoutParameters();
+                    updateInputViewShown();
+                }
+            });
+        }
+    }
+
     /**
      * Expand the soft-input window (and its inner inputArea / input view) to
      * the full screen height, anchored to the bottom, in non-fullscreen mode.
      * This lets the framework apply system-bar insets correctly so the keyboard
      * box lifts above the navigation bar/buttons instead of rendering behind
-     * them. The wrapper paints the IME surface color so the area behind the
-     * buttons is opaque. Adapted from AOSP LatinIME / HeliBoard.
+     * them. The window is translucent and the wrapper paints nothing, so the
+     * area outside the rounded box is transparent (app shows through). Adapted
+     * from AOSP LatinIME / HeliBoard.
      */
     private void updateSoftInputWindowLayoutParameters() {
         Window window = getWindow().getWindow();
@@ -164,7 +186,7 @@ public class WhisperInputMethodService extends InputMethodService {
         if (mImeContent != null) {
             // Pad the content box by the navigation-bar height so the keys sit
             // above the system buttons; the wrapper stays edge-to-edge behind
-            // them (opaque background).
+            // them (transparent, so the app shows through).
             ViewCompat.setOnApplyWindowInsetsListener(mImeContent, (v, insets) -> {
                 androidx.core.graphics.Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
                 v.setPadding(v.getPaddingLeft(), v.getPaddingTop(),
@@ -191,15 +213,6 @@ public class WhisperInputMethodService extends InputMethodService {
     public void onStartInput(EditorInfo attribute, boolean restarting) {
         if (attribute.inputType == EditorInfo.TYPE_NULL) {
             if (mRecorder != null && mRecorder.isInProgress()) mRecorder.stop();
-        }
-    }
-
-    @Override
-    public void onStartInputView(EditorInfo attribute, boolean restarting){
-        if (mWhisper == null) initModel();
-        if (btnKeyboard != null) {
-            boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
-            btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
         }
     }
 
