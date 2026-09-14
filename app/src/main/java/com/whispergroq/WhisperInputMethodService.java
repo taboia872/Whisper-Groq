@@ -25,6 +25,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.color.MaterialColors;
 
@@ -152,6 +154,24 @@ public class WhisperInputMethodService extends InputMethodService {
         Context base = new android.view.ContextThemeWrapper(this, R.style.Theme_WhisperGroq_IME);
         themedContext = ThemeUtils.wrapImeContext(base);
         View view = LayoutInflater.from(themedContext).inflate(R.layout.voice_service, null);
+
+        // WORKAROUND: with a 3-button navigation bar in PORTRAIT, the soft-input
+        // window is configured by the framework to NOT apply the bottom inset
+        // (setFitInsetsSides(~Side.BOTTOM)), so the keyboard box renders BEHIND
+        // the Android nav buttons. Pad the root view by the nav-bar height so the
+        // box sits above it — but only in portrait. In landscape/fullscreen the
+        // nav bar is on the side (or hidden) and the keyboard already renders
+        // correctly, so leave the padding at 0 there.
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            boolean portrait = getResources().getConfiguration().orientation
+                    == android.content.res.Configuration.ORIENTATION_PORTRAIT;
+            int bottom = 0;
+            if (portrait) {
+                bottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            }
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         btnRecord = view.findViewById(R.id.btnRecord);
         btnKeyboard = view.findViewById(R.id.btnKeyboard);
