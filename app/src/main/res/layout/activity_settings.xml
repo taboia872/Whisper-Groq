@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -12,89 +13,56 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Theme -->
+            <!-- ============ Theme ============ -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
-                android:textSize="20sp"
+                android:layout_marginTop="4dp"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorPrimary"
                 android:text="@string/settings_theme" />
 
             <Spinner
                 android:id="@+id/spinnerTheme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="8dp" />
 
-            <!-- General -->
+            <!-- ============ Groq API ============ -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
-                android:textSize="20sp"
-                android:text="@string/settings_general" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:textSize="16sp"
-                android:textColor="@color/colorAccent"
-                android:text="@string/settings_minimum_silence" />
-
-            <com.google.android.material.slider.RangeSlider
-                android:id="@+id/settings_min_silence"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:valueFrom="0"
-                android:valueTo="3000"
-                android:stepSize="100" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:textSize="16sp"
-                android:textColor="@color/colorAccent"
-                android:text="@string/settings_max_recording" />
-
-            <EditText
-                android:id="@+id/editMaxSeconds"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:inputType="number"
-                android:hint="60" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:text="@string/settings_max_recording_hint" />
-
-            <CheckBox
-                android:id="@+id/mode_bluetooth"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/setting_bluetooth"
-                android:textSize="14sp" />
-
-            <!-- Groq API -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
-                android:textSize="20sp"
+                android:layout_marginTop="24dp"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorPrimary"
                 android:text="@string/settings_groq" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:text="@string/settings_api_key_hint" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:text="@string/settings_api_key_label" />
+
+                <ImageButton
+                    android:id="@+id/infoApiKey"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_info_48dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="@string/info" />
+            </LinearLayout>
 
             <EditText
                 android:id="@+id/editApiKey"
@@ -107,23 +75,124 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:textSize="16sp"
-                android:textColor="@color/colorAccent"
+                android:textColor="?attr/colorOnSurface"
                 android:text="@string/settings_model" />
 
             <Spinner
                 android:id="@+id/spinnerModel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="8dp" />
 
-            <!-- Visibility toggles for buttons -->
+            <!-- ============ General ============ -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
-                android:textSize="20sp"
+                android:layout_marginTop="24dp"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorPrimary"
+                android:text="@string/settings_general" />
+
+            <!-- Minimum silence (Material 3 slider + live value) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:text="@string/settings_minimum_silence" />
+
+                <TextView
+                    android:id="@+id/valueMinSilence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    android:text="800 ms" />
+            </LinearLayout>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/settings_min_silence"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                android:valueTo="3000"
+                android:stepSize="100"
+                app:labelBehavior="gone" />
+
+            <!-- Maximum recording time (Material 3 slider + live value) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:text="@string/settings_max_recording" />
+
+                <TextView
+                    android:id="@+id/valueMaxSeconds"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    android:text="60 s" />
+            </LinearLayout>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/settings_max_seconds"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="5"
+                android:valueTo="300"
+                android:stepSize="5"
+                app:labelBehavior="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:text="@string/settings_max_recording_hint" />
+
+            <!-- Bluetooth -->
+            <CheckBox
+                android:id="@+id/mode_bluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/setting_bluetooth"
+                android:textSize="14sp" />
+
+            <!-- ============ Buttons ============ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorPrimary"
                 android:text="@string/settings_buttons" />
 
             <CheckBox

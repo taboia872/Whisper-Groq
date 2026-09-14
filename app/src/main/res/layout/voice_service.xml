@@ -132,7 +132,7 @@
                 android:contentDescription="Paste"/>
         </LinearLayout>
 
-        <!-- Buttons row 2: punctuation | numbers | del | enter -->
+        <!-- Buttons row 2: punctuation | numbers | space | del | enter -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -164,6 +164,21 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_numbers_24dp"
                 android:contentDescription="Numbers"/>
+
+            <TextView
+                android:id="@+id/btnSpace"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="2"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/kb_button"
+                android:gravity="center"
+                android:text="␣"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:contentDescription="@string/space_button"/>
 
             <ImageButton
                 android:id="@+id/btnDel"

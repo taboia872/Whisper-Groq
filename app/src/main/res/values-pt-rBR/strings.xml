@@ -18,6 +18,7 @@
     <string name="settings">Configurações</string>
     <string name="settings_groq">API Groq</string>
     <string name="settings_api_key_hint">Obtenha a chave em console.groq.com. Fica criptografada localmente.</string>
+    <string name="settings_api_key_label">Chave da API</string>
     <string name="settings_model">Modelo Whisper</string>
     <string name="settings_general">Geral</string>
     <string name="settings_minimum_silence">Silêncio mínimo (ms)</string>
@@ -34,4 +35,9 @@
     <string name="theme_dark">Escuro</string>
     <string name="theme_system">Padrão do sistema</string>
     <string name="theme_dynamic">Papel de parede (dinâmico)</string>
+    <string name="status_connected">Conectado</string>
+    <string name="status_processing">Processando…</string>
+    <string name="status_error_unknown">Erro desconhecido</string>
+    <string name="toggle_auto_mode">Mostrar alternância de modo automático no teclado</string>
+    <string name="space_button">Espaço</string>
 </resources>

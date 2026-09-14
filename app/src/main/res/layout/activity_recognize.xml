@@ -9,7 +9,7 @@
         android:orientation="vertical"
         android:background="@drawable/recognizer_background"
         android:layout_gravity="bottom"
-        android:padding="5dp">
+        android:padding="12dp">
 
         <ProgressBar
             android:id="@+id/processing_bar"
@@ -21,57 +21,71 @@
             android:indeterminateTint="@color/colorAccent"
             style="?android:attr/progressBarStyleHorizontal"/>
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:gravity="center">
 
+            <!-- Cancel -->
             <ImageButton
                 android:id="@+id/btnCancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:background="@color/darkGrey"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:background="@drawable/kb_button"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_cancel_36dp"
                 android:contentDescription="@string/exit_button"/>
 
+            <!-- Stop (auto mode) -->
             <ImageButton
                 android:id="@+id/btnStop"
                 android:visibility="gone"
-                android:layout_centerHorizontal="true"
-                android:layout_marginHorizontal="5dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/darkGrey"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:background="@drawable/kb_button"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_stop_recording_36dp"
                 android:contentDescription="@string/stop_button"/>
 
+            <!-- Auto mode toggle -->
             <ImageButton
                 android:id="@+id/btnModeAuto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:background="@color/darkGrey"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:background="@drawable/kb_button"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_auto_off_36dp"
                 android:contentDescription="@string/auto_button"/>
 
-        </RelativeLayout>
+        </LinearLayout>
 
+        <!-- Record -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/btnRecord"
-                android:layout_width="96dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:layout_weight="1"
-                android:background="@drawable/rounded_button_background"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/kb_mic_button"
+                android:padding="18dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_mic_48dp"
                 android:contentDescription="@string/record_button"/>
 

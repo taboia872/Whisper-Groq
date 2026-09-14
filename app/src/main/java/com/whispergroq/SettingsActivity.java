@@ -12,7 +12,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,7 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
-import com.google.android.material.slider.RangeSlider;
+import com.google.android.material.slider.Slider;
 import com.whispergroq.utils.ThemeUtils;
 
 import java.util.ArrayList;
@@ -63,6 +65,11 @@ public class SettingsActivity extends AppCompatActivity {
                 com.whispergroq.utils.SecurePrefs.setApiKey(this, editApiKey.getText().toString().trim());
             }
         });
+
+        ImageButton infoApiKey = findViewById(R.id.infoApiKey);
+        infoApiKey.setOnClickListener(v ->
+            Toast.makeText(this, R.string.settings_api_key_hint, Toast.LENGTH_LONG).show()
+        );
 
         // Model spinner
         Spinner spinnerModel = findViewById(R.id.spinnerModel);
@@ -124,26 +131,28 @@ public class SettingsActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // Silence slider
-        RangeSlider minSilence = findViewById(R.id.settings_min_silence);
-        float silence = sp.getInt("silenceDurationMs", 800);
-        minSilence.setValues(silence);
-        minSilence.addOnChangeListener((slider, value, fromUser) ->
-            sp.edit().putInt("silenceDurationMs", (int) value).apply()
-        );
+        // Silence slider (Material 3)
+        Slider minSilence = findViewById(R.id.settings_min_silence);
+        TextView valueMinSilence = findViewById(R.id.valueMinSilence);
+        int silenceMs = sp.getInt("silenceDurationMs", 800);
+        minSilence.setValue(silenceMs);
+        valueMinSilence.setText(silenceMs + " ms");
+        minSilence.addOnChangeListener((slider, value, fromUser) -> {
+            int v = (int) value;
+            valueMinSilence.setText(v + " ms");
+            sp.edit().putInt("silenceDurationMs", v).apply();
+        });
 
-        // Max recording seconds
-        EditText editMaxSeconds = findViewById(R.id.editMaxSeconds);
-        editMaxSeconds.setText(String.valueOf(sp.getInt("max_recording_seconds", 60)));
-        editMaxSeconds.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                try {
-                    int sec = Integer.parseInt(editMaxSeconds.getText().toString().trim());
-                    if (sec < 5) sec = 5;
-                    if (sec > 300) sec = 300;
-                    sp.edit().putInt("max_recording_seconds", sec).apply();
-                } catch (NumberFormatException ignored) {}
-            }
+        // Max recording seconds (Material 3 slider)
+        Slider maxSeconds = findViewById(R.id.settings_max_seconds);
+        TextView valueMaxSeconds = findViewById(R.id.valueMaxSeconds);
+        int maxSec = sp.getInt("max_recording_seconds", 60);
+        maxSeconds.setValue(maxSec);
+        valueMaxSeconds.setText(maxSec + " s");
+        maxSeconds.addOnChangeListener((slider, value, fromUser) -> {
+            int v = (int) value;
+            valueMaxSeconds.setText(v + " s");
+            sp.edit().putInt("max_recording_seconds", v).apply();
         });
 
         // Bluetooth

@@ -48,6 +48,7 @@ public class WhisperInputMethodService extends InputMethodService {
     private ImageButton btnPaste;
     private ImageButton btnPunctuation;
     private ImageButton btnNumbers;
+    private TextView btnSpace;
     private ImageView btnStatus;
     private TextView tvStatus;
     private Recorder mRecorder = null;
@@ -57,7 +58,7 @@ public class WhisperInputMethodService extends InputMethodService {
     private Context mContext;
     private Context themedContext;
     private CountDownTimer countDownTimer;
-    private String lastStatusMessage = "Pronto";
+    private String lastStatusMessage = "";
     private PopupWindow numbersPopup;
 
     private void showNumbersPopup(View anchor) {
@@ -181,6 +182,7 @@ public class WhisperInputMethodService extends InputMethodService {
         btnPaste = view.findViewById(R.id.btnPaste);
         btnPunctuation = view.findViewById(R.id.btnPunctuation);
         btnNumbers = view.findViewById(R.id.btnNumbers);
+        btnSpace = view.findViewById(R.id.btnSpace);
         btnDel = view.findViewById(R.id.btnDel);
         btnEnter = view.findViewById(R.id.btnEnter);
         btnStatus = view.findViewById(R.id.btnStatus);
@@ -261,6 +263,7 @@ public class WhisperInputMethodService extends InputMethodService {
         btnCopy.setOnClickListener(v -> sendKeyWithMeta(KeyEvent.KEYCODE_C, KeyEvent.META_CTRL_ON));
         btnPaste.setOnClickListener(v -> sendKeyWithMeta(KeyEvent.KEYCODE_V, KeyEvent.META_CTRL_ON));
         btnNumbers.setOnClickListener(v -> showNumbersPopup(v));
+        btnSpace.setOnClickListener(v -> safeCommit(" "));
 
         // Punctuation popup
         btnPunctuation.setOnClickListener(v -> showPunctuationPopup(v));
@@ -391,19 +394,19 @@ public class WhisperInputMethodService extends InputMethodService {
                 switch (status) {
                     case "OK":
                         resId = R.drawable.status_led_ok;
-                        lastStatusMessage = detail != null ? detail : "OK";
+                        lastStatusMessage = getString(R.string.status_connected);
                         break;
                     case "BUSY":
                         resId = R.drawable.status_led_busy;
-                        lastStatusMessage = "Processando...";
+                        lastStatusMessage = getString(R.string.status_processing);
                         break;
                     case "ERROR":
                         resId = R.drawable.status_led_error;
-                        lastStatusMessage = detail != null ? detail : "Erro desconhecido";
+                        lastStatusMessage = detail != null ? detail : getString(R.string.status_error_unknown);
                         break;
                     default:
                         resId = R.drawable.status_led_idle;
-                        lastStatusMessage = "Pronto";
+                        lastStatusMessage = getString(R.string.status_connected);
                 }
                 handler.post(() -> btnStatus.setImageResource(resId));
             }
