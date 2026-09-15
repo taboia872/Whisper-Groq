@@ -20,6 +20,11 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
+        with:
+          # Default is 'tools platform-tools'; 'tools' was removed from the
+          # SDK repo. The ubuntu-latest runner already ships platform-tools,
+          # build-tools and platforms — install nothing, just accept licenses.
+          packages: ''
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
