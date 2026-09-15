@@ -59,6 +59,7 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
         params.width = WindowManager.LayoutParams.MATCH_PARENT;
         params.height = WindowManager.LayoutParams.WRAP_CONTENT;
         params.gravity = Gravity.BOTTOM;
+        getWindow().setAttributes(params);
 
         btnCancel = findViewById(R.id.btnCancel);
         btnStop = findViewById(R.id.btnStop);

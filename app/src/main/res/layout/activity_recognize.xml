@@ -31,12 +31,11 @@
             <!-- Cancel -->
             <ImageButton
                 android:id="@+id/btnCancel"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginHorizontal="6dp"
                 android:background="@drawable/kb_button"
-                android:padding="10dp"
+                android:padding="16dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_cancel_36dp"
                 android:contentDescription="@string/exit_button"/>
@@ -45,12 +44,11 @@
             <ImageButton
                 android:id="@+id/btnStop"
                 android:visibility="gone"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginHorizontal="6dp"
                 android:background="@drawable/kb_button"
-                android:padding="10dp"
+                android:padding="16dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_stop_recording_36dp"
                 android:contentDescription="@string/stop_button"/>
@@ -58,12 +56,11 @@
             <!-- Auto mode toggle -->
             <ImageButton
                 android:id="@+id/btnModeAuto"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginHorizontal="6dp"
                 android:background="@drawable/kb_button"
-                android:padding="10dp"
+                android:padding="16dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_auto_off_36dp"
                 android:contentDescription="@string/auto_button"/>
