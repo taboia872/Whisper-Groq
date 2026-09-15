@@ -38,7 +38,6 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_system">System default</string>
-    <string name="theme_dynamic">Wallpaper (dynamic)</string>
     <string name="status_connected">Conectado</string>
     <string name="status_processing">Processando…</string>
     <string name="status_error_unknown">Erro desconhecido</string>
