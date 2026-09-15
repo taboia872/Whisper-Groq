@@ -28,10 +28,15 @@
         <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 
-    <!-- Floating dialog for RecognizeActivity: follows the app theme (DayNight) -->
-    <style name="Theme.WhisperFloating" parent="Theme.Material3.DayNight.Dialog">
+    <!-- Floating dialog for RecognizeActivity: transparent, no title/label
+         text — only the rounded recognizer box is drawn. -->
+    <style name="Theme.WhisperFloating" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorAccent</item>
         <item name="colorSecondary">@color/colorAccent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <!-- IME theme: pure Material3 DayNight so ?attr/color* (surface,

@@ -1,10 +1,10 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="960"
-    android:viewportHeight="960">
-  <!-- Material Symbols: autorenew filled (active) -->
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <!-- Material Icons round: autorenew (auto mode active) -->
   <path
       android:fillColor="?attr/colorPrimary"
-      android:pathData="M204,318q48,-63 123,-100.5T480,180q86,0 158.5,32T764,280h76v-196h-60v99q-51,-63 -129,-97.5T480,50q-104,0 -192.5,47.5T184,228M480,880q-86,0 -158.5,-32T196,680h-76v196h60v-99q51,63 129,97.5T480,910q104,0 192.5,-47.5T776,732l-58,-54q-48,63 -123,100.5T480,780Z"/>
+      android:pathData="M12,6v3l4,-4 -4,-4v3c-4.42,0 -8,3.58 -8,8 0,1.57 0.46,3.03 1.24,4.26L6.7,14.8c-0.45,-0.83 -0.7,-1.79 -0.7,-2.8 0,-3.31 2.69,-6 6,-6zM18.76,7.74L17.3,9.2c0.44,0.84 0.7,1.79 0.7,2.8 0,3.31 -2.69,6 -6,6v-3l-4,4 4,4v-3c4.42,0 8,-3.58 8,-8 0,-1.57 -0.46,-3.03 -1.24,-4.26z"/>
 </vector>

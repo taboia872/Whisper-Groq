@@ -47,6 +47,7 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        com.whispergroq.utils.ThemeUtils.applyDynamicIfNeeded(this);
         mContext = this;
         sp = PreferenceManager.getDefaultSharedPreferences(this);
 

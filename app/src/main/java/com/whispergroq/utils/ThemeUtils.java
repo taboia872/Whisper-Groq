@@ -1,7 +1,6 @@
 package com.whispergroq.utils;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -17,6 +16,8 @@ public class ThemeUtils {
     public static final String MODE_LIGHT = "light";
     public static final String MODE_DARK = "dark";
     public static final String MODE_SYSTEM = "system";
+    /** Follow system light/dark AND use wallpaper-based dynamic colors. */
+    public static final String MODE_AUTO_DYNAMIC = "auto_dynamic";
 
     private ThemeUtils() {}
 
@@ -35,6 +36,32 @@ public class ThemeUtils {
         if (context instanceof Activity) {
             ((Activity) context).recreate();
         }
+    }
+
+    /** True when the user picked the wallpaper-based dynamic mode. */
+    public static boolean isDynamic(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return MODE_AUTO_DYNAMIC.equals(sp.getString(PREF_THEME_MODE, MODE_SYSTEM));
+    }
+
+    /**
+     * Apply dynamic (wallpaper) colors to an activity when auto-dynamic mode
+     * is on. Call in onCreate BEFORE setContentView. Old "dynamic" prefs map
+     * to the same behavior.
+     */
+    public static void applyDynamicIfNeeded(Activity activity) {
+        if (isDynamic(activity) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            com.google.android.material.color.DynamicColors.applyToActivityIfAvailable(activity);
+        }
+    }
+
+    /** Wrap a (Material3-themed) context so ?attr/color* resolve to wallpaper
+     *  colors in auto-dynamic mode. Used by the IME service. */
+    public static Context wrapDynamicIfNeeded(Context base) {
+        if (isDynamic(base) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return com.google.android.material.color.DynamicColors.wrapContextIfAvailable(base);
+        }
+        return base;
     }
 
     public static void setStatusBarAppearance(Activity activity) {

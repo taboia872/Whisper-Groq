@@ -153,7 +153,7 @@ public class WhisperInputMethodService extends InputMethodService {
         // Base the IME inflation on an explicit Material3 theme so ?attr/color*
         // always resolve (the service's own context theme may not be Material).
         Context base = new android.view.ContextThemeWrapper(this, R.style.Theme_WhisperGroq_IME);
-        themedContext = base;
+        themedContext = ThemeUtils.wrapDynamicIfNeeded(base);
         View view = LayoutInflater.from(themedContext).inflate(R.layout.voice_service, null);
 
         // WORKAROUND: with a 3-button navigation bar in PORTRAIT, the soft-input

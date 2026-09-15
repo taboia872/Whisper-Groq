@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeUtils.applyDynamicIfNeeded(this);
         mContext = this;
         setContentView(R.layout.activity_main);
         ThemeUtils.setStatusBarAppearance(this);

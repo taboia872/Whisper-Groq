@@ -42,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeUtils.applyDynamicIfNeeded(this);
         setContentView(R.layout.activity_settings);
         ThemeUtils.setStatusBarAppearance(this);
         ActionBar actionBar = getSupportActionBar();
@@ -95,12 +96,14 @@ public class SettingsActivity extends AppCompatActivity {
         final String[] THEME_MODES = {
                 com.whispergroq.utils.ThemeUtils.MODE_LIGHT,
                 com.whispergroq.utils.ThemeUtils.MODE_DARK,
-                com.whispergroq.utils.ThemeUtils.MODE_SYSTEM
+                com.whispergroq.utils.ThemeUtils.MODE_SYSTEM,
+                com.whispergroq.utils.ThemeUtils.MODE_AUTO_DYNAMIC
         };
         String[] themeLabels = {
                 getString(R.string.theme_light),
                 getString(R.string.theme_dark),
-                getString(R.string.theme_system)
+                getString(R.string.theme_system),
+                getString(R.string.theme_auto_dynamic)
         };
         ArrayAdapter<String> themeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, themeLabels);
         themeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
