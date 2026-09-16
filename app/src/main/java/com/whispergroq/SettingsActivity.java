@@ -50,7 +50,9 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ThemeUtils.applyDynamicIfNeeded(this);
+        // Accent overlay (purple/teal/link) on top of the manifest theme.
+        int overlayId = ThemeUtils.accentOverlayId(this);
+        if (overlayId != 0) getTheme().applyStyle(overlayId, true);
         setContentView(R.layout.activity_settings);
         ThemeUtils.setStatusBarAppearance(this);
         ActionBar actionBar = getSupportActionBar();
@@ -99,26 +101,32 @@ public class SettingsActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // Theme spinner
+        // Theme mode spinner (Dark / Light / Auto / Dynamic) + accent color
         Spinner spinnerTheme = findViewById(R.id.spinnerTheme);
         final String[] THEME_MODES = {
-                com.whispergroq.utils.ThemeUtils.MODE_LIGHT,
                 com.whispergroq.utils.ThemeUtils.MODE_DARK,
-                com.whispergroq.utils.ThemeUtils.MODE_SYSTEM,
+                com.whispergroq.utils.ThemeUtils.MODE_LIGHT,
+                com.whispergroq.utils.ThemeUtils.MODE_AUTO,
                 com.whispergroq.utils.ThemeUtils.MODE_AUTO_DYNAMIC
         };
         String[] themeLabels = {
-                getString(R.string.theme_light),
                 getString(R.string.theme_dark),
-                getString(R.string.theme_system),
-                getString(R.string.theme_auto_dynamic)
+                getString(R.string.theme_light),
+                getString(R.string.theme_auto),
+                getString(R.string.theme_dynamic)
         };
         ArrayAdapter<String> themeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, themeLabels);
         themeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerTheme.setAdapter(themeAdapter);
         String currentTheme = sp.getString(com.whispergroq.utils.ThemeUtils.PREF_THEME_MODE,
-                com.whispergroq.utils.ThemeUtils.MODE_SYSTEM);
-        int themeIndex = 2; // default SYSTEM
+                com.whispergroq.utils.ThemeUtils.MODE_AUTO);
+        // migrate legacy modes to the new mode x color structure
+        if (com.whispergroq.utils.ThemeUtils.MODE_SYSTEM.equals(currentTheme)) {
+            currentTheme = com.whispergroq.utils.ThemeUtils.MODE_AUTO;
+        } else if (com.whispergroq.utils.ThemeUtils.MODE_AUTO_DYNAMIC.equals(currentTheme)) {
+            currentTheme = com.whispergroq.utils.ThemeUtils.MODE_AUTO_DYNAMIC; // stays
+        }
+        int themeIndex = 2; // default AUTO
         for (int i = 0; i < THEME_MODES.length; i++) {
             if (THEME_MODES[i].equals(currentTheme)) { themeIndex = i; break; }
         }
@@ -128,9 +136,16 @@ public class SettingsActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selected = THEME_MODES[position];
                 String previous = sp.getString(com.whispergroq.utils.ThemeUtils.PREF_THEME_MODE,
-                        com.whispergroq.utils.ThemeUtils.MODE_SYSTEM);
+                        com.whispergroq.utils.ThemeUtils.MODE_AUTO);
                 if (!selected.equals(previous)) {
                     sp.edit().putString(com.whispergroq.utils.ThemeUtils.PREF_THEME_MODE, selected).apply();
+                    // Toggle the accent spinner BEFORE recreating: in Dynamic
+                    // mode the accent comes from the wallpaper. (Local lookup —
+                    // the field-level spinnerAccent is declared later.)
+                    Spinner accentSpinner = findViewById(R.id.spinnerAccent);
+                    boolean dyn = com.whispergroq.utils.ThemeUtils.MODE_AUTO_DYNAMIC.equals(selected);
+                    accentSpinner.setEnabled(!dyn);
+                    accentSpinner.setAlpha(dyn ? 0.5f : 1.0f);
                     // Apply immediately so the user sees the change, then recreate.
                     com.whispergroq.utils.ThemeUtils.applyTheme(SettingsActivity.this);
                 }
@@ -138,6 +153,44 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        // Accent color spinner (Roxo / Teal / Link) — disabled in Dynamic mode
+        Spinner spinnerAccent = findViewById(R.id.spinnerAccent);
+        final String[] ACCENTS = {
+                com.whispergroq.utils.ThemeUtils.ACCENT_PURPLE,
+                com.whispergroq.utils.ThemeUtils.ACCENT_TEAL,
+                com.whispergroq.utils.ThemeUtils.ACCENT_LINK
+        };
+        String[] accentLabels = {
+                getString(R.string.accent_purple),
+                getString(R.string.accent_teal),
+                getString(R.string.accent_link)
+        };
+        ArrayAdapter<String> accentAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, accentLabels);
+        accentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAccent.setAdapter(accentAdapter);
+        String currentAccent = com.whispergroq.utils.ThemeUtils.accent(this);
+        int accentIndex = 0;
+        for (int i = 0; i < ACCENTS.length; i++) {
+            if (ACCENTS[i].equals(currentAccent)) { accentIndex = i; break; }
+        }
+        spinnerAccent.setSelection(accentIndex);
+        spinnerAccent.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = ACCENTS[position];
+                String previous = com.whispergroq.utils.ThemeUtils.accent(SettingsActivity.this);
+                if (!selected.equals(previous)) {
+                    sp.edit().putString(com.whispergroq.utils.ThemeUtils.PREF_ACCENT, selected).apply();
+                    com.whispergroq.utils.ThemeUtils.applyTheme(SettingsActivity.this);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        // In Dynamic mode the accent comes from the wallpaper — hide the picker
+        spinnerAccent.setEnabled(!com.whispergroq.utils.ThemeUtils.isDynamic(this));
+        spinnerAccent.setAlpha(com.whispergroq.utils.ThemeUtils.isDynamic(this) ? 0.5f : 1.0f);
 
         // Silence slider (Material 3)
         Slider minSilence = findViewById(R.id.settings_min_silence);

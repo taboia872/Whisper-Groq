@@ -7,17 +7,26 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.view.WindowInsetsController;
 
+import androidx.annotation.StyleRes;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
 public class ThemeUtils {
 
     public static final String PREF_THEME_MODE = "theme_mode";
+    public static final String PREF_ACCENT = "accent_color";
+    /** Legacy single-dimension modes kept for pref migration. */
     public static final String MODE_LIGHT = "light";
     public static final String MODE_DARK = "dark";
     public static final String MODE_SYSTEM = "system";
-    /** Follow system light/dark AND use wallpaper-based dynamic colors. */
     public static final String MODE_AUTO_DYNAMIC = "auto_dynamic";
+    /** Two-dimension mode: light/dark follows system, accent user-chosen. */
+    public static final String MODE_AUTO = "auto";
+
+    public static final String ACCENT_PURPLE = "purple";
+    public static final String ACCENT_TEAL = "teal";
+    public static final String ACCENT_LINK = "link";
+    public static final String ACCENT_DEFAULT = ACCENT_PURPLE;
 
     private ThemeUtils() {}
 
@@ -28,7 +37,7 @@ public class ThemeUtils {
         return AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
     }
 
-    /** Re-read the stored mode and apply night mode, then recreate. */
+    /** Store mode + accent together and re-apply (activities recreate). */
     public static void applyTheme(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         String mode = sp.getString(PREF_THEME_MODE, MODE_SYSTEM);
@@ -46,8 +55,7 @@ public class ThemeUtils {
 
     /**
      * Apply dynamic (wallpaper) colors to an activity when auto-dynamic mode
-     * is on. Call in onCreate BEFORE setContentView. Old "dynamic" prefs map
-     * to the same behavior.
+     * is on. Call in onCreate BEFORE setContentView.
      */
     public static void applyDynamicIfNeeded(Activity activity) {
         if (isDynamic(activity) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -64,9 +72,33 @@ public class ThemeUtils {
         return base;
     }
 
+    /** The user's accent, independent of mode (purple/teal/link). */
+    public static String accent(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getString(PREF_ACCENT, ACCENT_DEFAULT);
+    }
+
+    /** ThemeOverlay resId for the chosen accent. 0 = none (dynamic colors). */
+    @StyleRes
+    public static int accentOverlayId(Context context) {
+        if (isDynamic(context)) return 0;
+        String a = accent(context);
+        if (ACCENT_TEAL.equals(a)) return R.style.AccentOverlay_Teal;
+        if (ACCENT_LINK.equals(a)) return R.style.AccentOverlay_Link;
+        return R.style.AccentOverlay_Purple;
+    }
+
+    /** Wrap a themed context with the accent overlay. */
+    public static Context wrapAccentIfNeeded(Context base) {
+        int overlayId = accentOverlayId(base);
+        if (overlayId == 0) return base;
+        return new android.view.ContextThemeWrapper(base, overlayId);
+    }
+
     public static void setStatusBarAppearance(Activity activity) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            int nightModeFlags = activity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode
+                    & Configuration.UI_MODE_NIGHT_MASK;
             boolean isDarkMode = (nightModeFlags == Configuration.UI_MODE_NIGHT_YES);
             WindowInsetsController insetsController = activity.getWindow().getInsetsController();
             if (insetsController != null) {

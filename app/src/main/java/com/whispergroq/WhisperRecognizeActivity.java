@@ -53,6 +53,9 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Accent overlay (purple/teal/link) on top of the manifest theme.
+        int overlayId = com.whispergroq.utils.ThemeUtils.accentOverlayId(this);
+        if (overlayId != 0) getTheme().applyStyle(overlayId, true);
         com.whispergroq.utils.ThemeUtils.applyDynamicIfNeeded(this);
         mContext = this;
         sp = PreferenceManager.getDefaultSharedPreferences(this);

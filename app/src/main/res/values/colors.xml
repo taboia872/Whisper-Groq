@@ -10,10 +10,25 @@
     <color name="text_secondary">#6B6385</color>
 
     <!-- IME surface (light by default; values-night overrides to dark) -->
-    <color name="ime_surface">#FFFFFF</color>
-    <color name="ime_surface_container_high">#EDE9FE</color>
-    <color name="ime_text_primary">#1E1B29</color>
-    <color name="ime_accent">#7C3AED</color>
 
     <color name="recording">#DC2626</color>
+
+    <!-- ===== Accent palettes (M3 tones; night variants in values-night) ===== -->
+    <!-- Purple (default brand) -->
+    <color name="accent_purple">#7C3AED</color>
+    <color name="on_accent_purple">#FFFFFF</color>
+    <color name="container_purple">#EADDFF</color>
+    <color name="on_container_purple">#4F378B</color>
+    <!-- Teal (petroleum) -->
+    <color name="accent_teal">#00695C</color>
+    <color name="accent_teal_dark">#004D40</color>
+    <color name="on_accent_teal">#FFFFFF</color>
+    <color name="container_teal">#9CF2E4</color>
+    <color name="on_container_teal">#00201B</color>
+    <!-- Link (baby pink) -->
+    <color name="accent_link">#EC407A</color>
+    <color name="accent_link_dark">#D81B60</color>
+    <color name="on_accent_link">#FFFFFF</color>
+    <color name="container_link">#FFD9E4</color>
+    <color name="on_container_link">#590D2B</color>
 </resources>

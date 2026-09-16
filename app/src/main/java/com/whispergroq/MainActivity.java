@@ -93,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Accent overlay (purple/teal/link) on top of the manifest theme.
+        int overlayId = ThemeUtils.accentOverlayId(this);
+        if (overlayId != 0) getTheme().applyStyle(overlayId, true);
         ThemeUtils.applyDynamicIfNeeded(this);
         mContext = this;
         setContentView(R.layout.activity_main);

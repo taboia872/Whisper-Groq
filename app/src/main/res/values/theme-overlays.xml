@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Accent overlays: applied on top of the DayNight themes via
+         ThemeUtils.applyAccent(). Each overlay redefines the primary
+         key colors; M3 derives the rest. Night color values come from
+         values-night/colors.xml automatically. -->
+    <style name="AccentOverlay.Purple" parent="">
+        <item name="colorPrimary">@color/accent_purple</item>
+        <item name="colorOnPrimary">@color/on_accent_purple</item>
+        <item name="colorPrimaryContainer">@color/container_purple</item>
+        <item name="colorOnPrimaryContainer">@color/on_container_purple</item>
+        <item name="colorSecondary">@color/accent_purple</item>
+        <item name="colorPrimaryVariant">@color/colorAccentDark</item>
+    </style>
+
+    <style name="AccentOverlay.Teal" parent="">
+        <item name="colorPrimary">@color/accent_teal</item>
+        <item name="colorOnPrimary">@color/on_accent_teal</item>
+        <item name="colorPrimaryContainer">@color/container_teal</item>
+        <item name="colorOnPrimaryContainer">@color/on_container_teal</item>
+        <item name="colorSecondary">@color/accent_teal</item>
+        <item name="colorPrimaryVariant">@color/accent_teal_dark</item>
+    </style>
+
+    <style name="AccentOverlay.Link" parent="">
+        <item name="colorPrimary">@color/accent_link</item>
+        <item name="colorOnPrimary">@color/on_accent_link</item>
+        <item name="colorPrimaryContainer">@color/container_link</item>
+        <item name="colorOnPrimaryContainer">@color/on_container_link</item>
+        <item name="colorSecondary">@color/accent_link</item>
+        <item name="colorPrimaryVariant">@color/accent_link_dark</item>
+    </style>
+</resources>

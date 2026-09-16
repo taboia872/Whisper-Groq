@@ -37,8 +37,12 @@
     <string name="settings_theme">App theme</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
-    <string name="theme_system">System default</string>
-    <string name="theme_auto_dynamic">Auto (dynamic colors)</string>
+    <string name="theme_auto">Automatic</string>
+    <string name="theme_dynamic">Dynamic</string>
+    <string name="settings_accent_label">Color</string>
+    <string name="accent_purple">Purple</string>
+    <string name="accent_teal">Teal</string>
+    <string name="accent_link">Baby pink</string>
     <string name="status_connected">Conectado</string>
     <string name="status_processing">Processando…</string>
     <string name="status_error_unknown">Erro desconhecido</string>
