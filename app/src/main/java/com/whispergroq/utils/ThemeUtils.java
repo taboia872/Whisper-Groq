@@ -11,6 +11,8 @@ import androidx.annotation.StyleRes;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
+import com.whispergroq.R;
+
 public class ThemeUtils {
 
     public static final String PREF_THEME_MODE = "theme_mode";
