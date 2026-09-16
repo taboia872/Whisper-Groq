@@ -1,6 +1,7 @@
 package com.whispergroq;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -10,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -38,6 +40,12 @@ public class SettingsActivity extends AppCompatActivity {
             "whisper-large-v3",
             "distil-whisper-large-v3-en"
     };
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        // App text scale (accessibility) multiplies the system font scale.
+        super.attachBaseContext(com.whispergroq.utils.UiPrefs.applyTextScale(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +172,38 @@ public class SettingsActivity extends AppCompatActivity {
                     && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 111);
             }
+        });
+
+        // Accessibility: text scale + button scale + reset (UiPrefs)
+        Slider textScale = findViewById(R.id.settings_text_scale);
+        TextView valueTextScale = findViewById(R.id.valueTextScale);
+        float ts = com.whispergroq.utils.UiPrefs.textScale(this);
+        textScale.setValue(ts);
+        valueTextScale.setText(Math.round(ts * 100) + "%");
+        textScale.addOnChangeListener((slider, value, fromUser) -> {
+            int v = Math.round(value * 100);
+            valueTextScale.setText(v + "%");
+            sp.edit().putInt(com.whispergroq.utils.UiPrefs.PREF_TEXT_SCALE, v).apply();
+        });
+
+        Slider buttonScale = findViewById(R.id.settings_button_scale);
+        TextView valueButtonScale = findViewById(R.id.valueButtonScale);
+        float bs = com.whispergroq.utils.UiPrefs.buttonScale(this);
+        buttonScale.setValue(bs);
+        valueButtonScale.setText(Math.round(bs * 100) + "%");
+        buttonScale.addOnChangeListener((slider, value, fromUser) -> {
+            int v = Math.round(value * 100);
+            valueButtonScale.setText(v + "%");
+            sp.edit().putInt(com.whispergroq.utils.UiPrefs.PREF_BUTTON_SCALE, v).apply();
+        });
+
+        Button btnResetDisplay = findViewById(R.id.btnResetDisplay);
+        btnResetDisplay.setOnClickListener(v -> {
+            com.whispergroq.utils.UiPrefs.reset(this);
+            textScale.setValue(1.0f);
+            buttonScale.setValue(1.0f);
+            valueTextScale.setText("100%");
+            valueButtonScale.setText("100%");
         });
 
         // Button visibility toggles

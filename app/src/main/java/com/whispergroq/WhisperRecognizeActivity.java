@@ -43,6 +43,12 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
     private CountDownTimer countDownTimer;
     private boolean modeAuto = false;
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        // App text scale (accessibility) multiplies the system font scale.
+        super.attachBaseContext(com.whispergroq.utils.UiPrefs.applyTextScale(newBase));
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +72,19 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
         btnRecord = findViewById(R.id.btnRecord);
         btnModeAuto = findViewById(R.id.btnModeAuto);
         processingBar = findViewById(R.id.processing_bar);
+
+        // Accessibility: scale the capture dialog's touch targets.
+        float f = com.whispergroq.utils.UiPrefs.buttonScale(this);
+        if (f != 1.0f) {
+            int small = com.whispergroq.utils.UiPrefs.scaledDp(this, 56);
+            int big = com.whispergroq.utils.UiPrefs.scaledDp(this, 72);
+            for (ImageButton b : new ImageButton[]{btnCancel, btnStop, btnModeAuto}) {
+                b.getLayoutParams().width = small;
+                b.getLayoutParams().height = small;
+            }
+            btnRecord.getLayoutParams().width = big;
+            btnRecord.getLayoutParams().height = big;
+        }
 
         modeAuto = sp.getBoolean("imeModeAuto", false);
         btnModeAuto.setImageResource(modeAuto ? R.drawable.ic_auto_on_36dp : R.drawable.ic_auto_off_36dp);

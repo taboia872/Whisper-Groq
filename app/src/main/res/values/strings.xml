@@ -52,4 +52,8 @@
     <string name="paste_description">Paste</string>
     <string name="punctuation_description">Punctuation</string>
     <string name="numbers_description">Numbers</string>
+    <string name="settings_accessibility">Accessibility</string>
+    <string name="settings_text_scale">Text scale</string>
+    <string name="settings_button_scale">Buttons and icons size</string>
+    <string name="settings_reset_display">Reset to defaults</string>
 </resources>
