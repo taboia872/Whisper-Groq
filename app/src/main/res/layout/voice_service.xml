@@ -175,7 +175,7 @@
                 android:background="@drawable/kb_button"
                 android:gravity="center"
                 android:text="␣"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/kb_icon_tint"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:contentDescription="@string/space_button"/>

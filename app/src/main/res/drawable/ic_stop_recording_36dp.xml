@@ -5,6 +5,6 @@
     android:viewportHeight="24">
   <!-- Material Icons: stop -->
   <path
-      android:fillColor="?attr/colorOnSurface"
+      android:fillColor="@color/kb_icon_tint"
       android:pathData="M6,6h12v12H6z"/>
 </vector>

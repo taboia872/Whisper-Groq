@@ -5,6 +5,6 @@
     android:viewportHeight="24">
   <!-- Material Icons baseline: navigation/subdirectory_arrow_left -->
   <path
-      android:fillColor="?attr/colorOnSurface"
+      android:fillColor="@color/kb_icon_tint"
       android:pathData="M11,9l1.42,1.42L8.83,14L18,14L18,4h2v12L8.83,16l3.59,3.58L11,21l-6,-6 6,-6z"/>
 </vector>

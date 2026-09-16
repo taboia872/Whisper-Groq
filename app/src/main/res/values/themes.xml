@@ -14,16 +14,16 @@
         <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 
-    <!-- With action bar (DayNight) -->
+    <!-- With action bar (DayNight) — used by MainActivity/SettingsActivity
+         (menu inflation needs a real ActionBar). No hardcoded colorOnPrimary:
+         M3 derives it per light/dark so on-accent content keeps contrast. -->
     <style name="Theme.WhisperGroq.ActionBar" parent="Theme.Material3.DayNight">
         <item name="colorPrimary">@color/colorAccent</item>
         <item name="colorPrimaryVariant">@color/colorAccentDark</item>
         <item name="colorSecondary">@color/colorAccent</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/text_primary</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
         <item name="android:windowBackground">@color/windowBackground</item>
-        <item name="android:statusBarColor">@color/colorAccentDark</item>
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
