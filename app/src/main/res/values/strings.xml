@@ -43,4 +43,13 @@
     <string name="status_processing">Processando…</string>
     <string name="status_error_unknown">Erro desconhecido</string>
     <string name="space_button">Espaço</string>
+    <string name="ime_not_enabled">Whisper-Groq keyboard is not enabled</string>
+    <string name="ime_enable_action">Enable</string>
+    <string name="status_description">Status</string>
+    <string name="select_all_description">Select all</string>
+    <string name="cut_description">Cut</string>
+    <string name="copy_description">Copy</string>
+    <string name="paste_description">Paste</string>
+    <string name="punctuation_description">Punctuation</string>
+    <string name="numbers_description">Numbers</string>
 </resources>

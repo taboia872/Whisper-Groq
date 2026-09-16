@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.whispergroq.asr.Recorder;
 import com.whispergroq.asr.Whisper;
 import com.whispergroq.asr.WhisperResult;
@@ -156,16 +157,12 @@ public class MainActivity extends AppCompatActivity {
         for (InputMethodInfo imi : enabledInputMethodList) {
             if (imi.getId().equals(myInputMethodId)) { enabled = true; break; }
         }
-        boolean wasPromptedBefore = sp.getBoolean("ime_prompt_shown", false);
         if (!enabled) {
-            if (!wasPromptedBefore) {
-                // First run — guide user to the system settings
-                sp.edit().putBoolean("ime_prompt_shown", true).apply();
-                Toast.makeText(this, "Ative o Whisper-Groq nas configurações de teclado", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS));
-            } else {
-                Toast.makeText(this, "Ative o Whisper-Groq nas configurações de teclado do sistema", Toast.LENGTH_LONG).show();
-            }
+            // Material 3 snackbar with an action — replaces the old hardcoded toast.
+            Snackbar.make(findViewById(android.R.id.content), R.string.ime_not_enabled, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.ime_enable_action, v ->
+                            startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)))
+                    .show();
         }
     }
 

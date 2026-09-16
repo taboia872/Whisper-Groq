@@ -40,4 +40,13 @@
     <string name="status_error_unknown">Erro desconhecido</string>
     <string name="toggle_auto_mode">Mostrar alternância de modo automático no teclado</string>
     <string name="space_button">Espaço</string>
+    <string name="ime_not_enabled">Teclado Whisper-Groq não ativado</string>
+    <string name="ime_enable_action">Ativar</string>
+    <string name="status_description">Status</string>
+    <string name="select_all_description">Selecionar tudo</string>
+    <string name="cut_description">Recortar</string>
+    <string name="copy_description">Copiar</string>
+    <string name="paste_description">Colar</string>
+    <string name="punctuation_description">Pontuação</string>
+    <string name="numbers_description">Números</string>
 </resources>

@@ -32,7 +32,7 @@
                 android:layout_marginEnd="2dp"
                 android:adjustViewBounds="true"
                 android:src="@drawable/status_led_idle"
-                android:contentDescription="Status"
+                android:contentDescription="@string/status_description"
                 android:scaleType="fitCenter"/>
 
             <TextView
@@ -90,7 +90,7 @@
                 android:padding="8dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_select_all_24dp"
-                android:contentDescription="Select all"/>
+                android:contentDescription="@string/select_all_description"/>
 
             <ImageButton
                 android:id="@+id/btnCut"
@@ -103,7 +103,7 @@
                 android:padding="8dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_cut_24dp"
-                android:contentDescription="Cut"/>
+                android:contentDescription="@string/cut_description"/>
 
             <ImageButton
                 android:id="@+id/btnCopy"
@@ -116,7 +116,7 @@
                 android:padding="8dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_copy_24dp"
-                android:contentDescription="Copy"/>
+                android:contentDescription="@string/copy_description"/>
 
             <ImageButton
                 android:id="@+id/btnPaste"
@@ -129,7 +129,7 @@
                 android:padding="8dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_paste_24dp"
-                android:contentDescription="Paste"/>
+                android:contentDescription="@string/paste_description"/>
         </LinearLayout>
 
         <!-- Buttons row 2: punctuation | numbers | space | del | enter -->
@@ -150,7 +150,7 @@
                 android:padding="8dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_punctuation_24dp"
-                android:contentDescription="Punctuation"/>
+                android:contentDescription="@string/punctuation_description"/>
 
             <ImageButton
                 android:id="@+id/btnNumbers"
@@ -163,7 +163,7 @@
                 android:padding="8dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_numbers_24dp"
-                android:contentDescription="Numbers"/>
+                android:contentDescription="@string/numbers_description"/>
 
             <TextView
                 android:id="@+id/btnSpace"
