@@ -124,6 +124,10 @@ public class WhisperInputMethodService extends InputMethodService {
             boolean showKeyboard = sp.getBoolean("show_keyboard_btn", true);
             btnKeyboard.setVisibility(showKeyboard ? View.VISIBLE : View.GONE);
         }
+        if (btnPunctuation != null) {
+            boolean showPunctuation = sp.getBoolean("show_punctuation", true);
+            btnPunctuation.setVisibility(showPunctuation ? View.VISIBLE : View.GONE);
+        }
     }
 
     @Override

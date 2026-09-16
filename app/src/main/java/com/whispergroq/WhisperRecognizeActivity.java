@@ -69,6 +69,8 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
 
         modeAuto = sp.getBoolean("imeModeAuto", false);
         btnModeAuto.setImageResource(modeAuto ? R.drawable.ic_auto_on_36dp : R.drawable.ic_auto_off_36dp);
+        boolean showAutoToggle = sp.getBoolean("show_auto_btn", true);
+        btnModeAuto.setVisibility(showAutoToggle ? View.VISIBLE : View.GONE);
 
         mRecorder = new Recorder(this);
         mRecorder.setListener(message -> {
