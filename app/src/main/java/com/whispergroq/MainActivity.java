@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -55,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
     private Whisper mWhisper = null;
     private SharedPreferences sp = null;
     private CountDownTimer countDownTimer;
+    /** First-run sequencing: keyboard invite waits for the mic dialog. */
+    private boolean pendingImeInvite = false;
+    private boolean permissionDialogUp = false;
 
     @Override
     protected void onDestroy() {
@@ -152,6 +156,13 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
     }
 
+    /**
+     * First-run flow, strictly one prompt at a time:
+     * 1. microphone permission dialog (system),
+     * 2. only AFTER it is granted → snackbar inviting the user to enable
+     *    the keyboard in system settings (snackbar, not a dialog, so the
+     *    user can dismiss it and keep using the app; no overlapping UI).
+     */
     private void checkInputMethodEnabled() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         List<InputMethodInfo> enabledInputMethodList = imm.getEnabledInputMethodList();
@@ -161,12 +172,42 @@ public class MainActivity extends AppCompatActivity {
             if (imi.getId().equals(myInputMethodId)) { enabled = true; break; }
         }
         if (!enabled) {
-            // Material 3 snackbar with an action — replaces the old hardcoded toast.
-            Snackbar.make(findViewById(android.R.id.content), R.string.ime_not_enabled, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.ime_enable_action, v ->
-                            startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)))
-                    .show();
+            // Defer the invite until the mic permission dialog is answered.
+            pendingImeInvite = true;
         }
+    }
+
+    /** Shows the "enable keyboard" snackbar once no permission dialog is up. */
+    private void maybeShowImeInvite() {
+        if (permissionDialogUp || !pendingImeInvite) return;
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        for (InputMethodInfo imi : imm.getEnabledInputMethodList()) {
+            if (imi.getId().equals(getPackageName() + "/.WhisperInputMethodService")) {
+                pendingImeInvite = false;
+                return;
+            }
+        }
+        pendingImeInvite = false;
+        Snackbar.make(findViewById(android.R.id.content), R.string.ime_not_enabled, Snackbar.LENGTH_LONG)
+                .setAction(R.string.ime_enable_action, v ->
+                        startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)))
+                .show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Covers: mic already granted (no dialog needed), and returning
+        // from the system keyboard settings (invite consumed, IME enabled).
+        maybeShowImeInvite();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionDialogUp = false;
+        // Microphone dialog answered → now the keyboard invite may show.
+        maybeShowImeInvite();
     }
 
     private void initWhisper() {
@@ -211,6 +252,9 @@ public class MainActivity extends AppCompatActivity {
             perms.add(Manifest.permission.BLUETOOTH_CONNECT);
         }
         if (!perms.isEmpty()) {
+            // One prompt at a time: while the mic dialog is up, the keyboard
+            // invite stays suppressed (shown in onRequestPermissionsResult).
+            permissionDialogUp = true;
             requestPermissions(perms.toArray(new String[]{}), 0);
             return false;
         }

@@ -5,6 +5,15 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'APK variant: debug runs the same release build, manual only'
+        required: false
+        default: 'debug'
+        type: choice
+        options:
+          - debug
+          - release
 
 jobs:
   build:
@@ -45,7 +54,8 @@ jobs:
 
       - name: Rename APK with version
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          VERSION=$(grep -E 'versionName' app/build.gradle | head -1 | sed -E 's/.*versionName "([^"]+)".*/\1/')
+          if [ -z "$VERSION" ]; then VERSION=${GITHUB_REF_NAME#v}; fi
           mkdir -p $GITHUB_WORKSPACE/dist
           cp app/build/outputs/apk/release/app-release.apk $GITHUB_WORKSPACE/dist/whispergroq-${VERSION}.apk
 

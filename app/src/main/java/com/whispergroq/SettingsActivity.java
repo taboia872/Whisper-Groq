@@ -44,8 +44,10 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Accent overlay (purple/teal/link) on top of the manifest theme.
+        // In Dynamic mode the overlay is skipped and wallpaper colors win.
         int overlayId = ThemeUtils.accentOverlayId(this);
         if (overlayId != 0) getTheme().applyStyle(overlayId, true);
+        ThemeUtils.applyDynamicIfNeeded(this);
         setContentView(R.layout.activity_settings);
         ThemeUtils.setStatusBarAppearance(this);
         ActionBar actionBar = getSupportActionBar();
