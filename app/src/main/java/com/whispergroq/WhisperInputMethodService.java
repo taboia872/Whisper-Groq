@@ -117,31 +117,6 @@ public class WhisperInputMethodService extends InputMethodService {
         outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_VISIBLE;
     }
 
-    /**
-     * Accessibility: scale the keyboard's fixed-size touch targets (record
-     * button 56dp, key rows 36dp) by the user's button-scale preference.
-     * Weight-driven widths keep splitting the row evenly; only the height
-     * (touch target) and the record button square are scaled.
-     */
-    private void applyButtonScale(View root) {
-        float f = com.whispergroq.utils.UiPrefs.buttonScale(this);
-        if (f == 1.0f) return;
-        int rowH = com.whispergroq.utils.UiPrefs.scaledDp(this, 36);
-        int micH = com.whispergroq.utils.UiPrefs.scaledDp(this, 56);
-        View record = root.findViewById(R.id.btnRecord);
-        if (record != null) {
-            record.getLayoutParams().width = micH;
-            record.getLayoutParams().height = micH;
-        }
-        int[] rows = {R.id.btnKeyboard, R.id.btnSelectAll, R.id.btnCut, R.id.btnCopy,
-                R.id.btnPaste, R.id.btnPunctuation, R.id.btnNumbers, R.id.btnSpace,
-                R.id.btnDel, R.id.btnEnter};
-        for (int id : rows) {
-            View v = root.findViewById(id);
-            if (v != null) v.getLayoutParams().height = rowH;
-        }
-    }
-
     @Override
     public void onStartInputView(EditorInfo attribute, boolean restarting) {
         if (mWhisper == null) initModel();
@@ -184,10 +159,7 @@ public class WhisperInputMethodService extends InputMethodService {
         Context base = new android.view.ContextThemeWrapper(this, R.style.Theme_WhisperGroq_IME);
         themedContext = ThemeUtils.wrapAccentIfNeeded(base);
         themedContext = ThemeUtils.wrapDynamicIfNeeded(themedContext);
-        // Accessibility: apply the user's text scale to the IME too.
-        themedContext = com.whispergroq.utils.UiPrefs.applyTextScale(themedContext);
         View view = LayoutInflater.from(themedContext).inflate(R.layout.voice_service, null);
-        applyButtonScale(view);
 
         // WORKAROUND: with a 3-button navigation bar in PORTRAIT, the soft-input
         // window is configured by the framework to NOT apply the bottom inset

@@ -53,8 +53,4 @@
     <string name="paste_description">Colar</string>
     <string name="punctuation_description">Pontuação</string>
     <string name="numbers_description">Números</string>
-    <string name="settings_accessibility">Acessibilidade</string>
-    <string name="settings_text_scale">Escala do texto</string>
-    <string name="settings_button_scale">Tamanho de botões e ícones</string>
-    <string name="settings_reset_display">Redefinir padrões</string>
 </resources>

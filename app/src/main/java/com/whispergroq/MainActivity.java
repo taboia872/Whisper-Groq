@@ -83,12 +83,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        // App text scale (accessibility) multiplies the system font scale.
-        super.attachBaseContext(com.whispergroq.utils.UiPrefs.applyTextScale(newBase));
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
