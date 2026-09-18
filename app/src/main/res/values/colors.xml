@@ -14,21 +14,34 @@
     <color name="recording">#DC2626</color>
 
     <!-- ===== Accent palettes (M3 tones; night variants in values-night) ===== -->
-    <!-- Purple (default brand) -->
+    <!-- Purple (default, brand) -->
     <color name="accent_purple">#7C3AED</color>
+    <color name="accent_purple_dark">#5B21B6</color>
     <color name="on_accent_purple">#FFFFFF</color>
     <color name="container_purple">#EADDFF</color>
     <color name="on_container_purple">#4F378B</color>
-    <!-- Teal (petroleum) -->
-    <color name="accent_teal">#00695C</color>
-    <color name="accent_teal_dark">#004D40</color>
-    <color name="on_accent_teal">#FFFFFF</color>
-    <color name="container_teal">#9CF2E4</color>
-    <color name="on_container_teal">#00201B</color>
-    <!-- Link (baby pink) -->
+    <!-- Blue 1976D2 -->
+    <color name="accent_blue">#1976D2</color>
+    <color name="accent_blue_dark">#0D47A1</color>
+    <color name="on_accent_blue">#FFFFFF</color>
+    <color name="container_blue">#D4E3FF</color>
+    <color name="on_container_blue">#00497E</color>
+    <!-- Baby pink -->
     <color name="accent_link">#EC407A</color>
     <color name="accent_link_dark">#D81B60</color>
     <color name="on_accent_link">#FFFFFF</color>
     <color name="container_link">#FFD9E4</color>
     <color name="on_container_link">#590D2B</color>
+    <!-- Brown 5D4037 -->
+    <color name="accent_brown">#5D4037</color>
+    <color name="accent_brown_dark">#3E2723</color>
+    <color name="on_accent_brown">#FFFFFF</color>
+    <color name="container_brown">#EFCCDC</color>
+    <color name="on_container_brown">#442B23</color>
+    <!-- Blue grey 455A64 -->
+    <color name="accent_slate">#455A64</color>
+    <color name="accent_slate_dark">#263238</color>
+    <color name="on_accent_slate">#FFFFFF</color>
+    <color name="container_slate">#D3E1E8</color>
+    <color name="on_container_slate">#1A313B</color>
 </resources>

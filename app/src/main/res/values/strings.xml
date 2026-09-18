@@ -4,7 +4,8 @@
     <string name="voice_input">Whisper-Groq Voice Input</string>
     <string name="need_record_audio_permission">"RECORD_AUDIO permission is not granted"</string>
     <string name="status">Status:</string>
-    <string name="append">Append:</string>
+    <string name="append">Keep text</string>
+    <string name="append_hint">Check the box so the text is not replaced: new transcriptions are appended to the end of the current text.</string>
     <string name="copy_to_clipboard">Copy</string>
     <string name="info">Info</string>
     <string name="processing">Processing…</string>
@@ -20,13 +21,15 @@
     <string name="error_no_input">No voice input received</string>
     <string name="settings">Settings</string>
     <string name="settings_groq">Groq API</string>
-    <string name="settings_api_key_hint">Get your key at console.groq.com — stored locally, only used for the API call.</string>
+    <string name="settings_api_key_hint">Get your key at <a href="https://console.groq.com/keys">console.groq.com</a> — stored locally, only used for the API call.</string>
     <string name="settings_api_key_label">API key</string>
+    <string name="settings_api_key_count">Keys</string>
     <string name="settings_model">Whisper model</string>
     <string name="settings_general">General</string>
     <string name="settings_minimum_silence">Minimum silence in automatic mode (ms)</string>
     <string name="settings_max_recording">Maximum recording time (seconds)</string>
-    <string name="settings_max_recording_hint">5–300 seconds. Groq accepts much longer, but longer sessions burn more API credits.</string>
+    <string name="settings_max_recording_hint">5–600 seconds. Groq accepts much longer, but longer sessions burn more API credits.</string>
+    <string name="settings_no_limit">No time limit (manual stop only)</string>
     <string name="settings_buttons">Buttons</string>
     <string name="toggle_punctuation">Show punctuation button</string>
     <string name="toggle_keyboard_button">Show keyboard button</string>
@@ -41,8 +44,10 @@
     <string name="theme_dynamic">Dynamic</string>
     <string name="settings_accent_label">Color</string>
     <string name="accent_purple">Purple</string>
-    <string name="accent_teal">Teal</string>
+    <string name="accent_blue">Blue</string>
     <string name="accent_link">Baby pink</string>
+    <string name="accent_brown">Brown</string>
+    <string name="accent_slate">Blue grey</string>
     <string name="status_connected">Conectado</string>
     <string name="status_processing">Processando…</string>
     <string name="status_error_unknown">Erro desconhecido</string>

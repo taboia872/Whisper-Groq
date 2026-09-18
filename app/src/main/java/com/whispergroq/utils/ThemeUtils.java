@@ -26,8 +26,10 @@ public class ThemeUtils {
     public static final String MODE_AUTO = "auto";
 
     public static final String ACCENT_PURPLE = "purple";
-    public static final String ACCENT_TEAL = "teal";
+    public static final String ACCENT_BLUE = "blue";
     public static final String ACCENT_LINK = "link";
+    public static final String ACCENT_BROWN = "brown";
+    public static final String ACCENT_SLATE = "slate";
     public static final String ACCENT_DEFAULT = ACCENT_PURPLE;
 
     private ThemeUtils() {}
@@ -74,6 +76,12 @@ public class ThemeUtils {
         return base;
     }
 
+    /** Compact signature of the theme prefs, to detect changes cheaply. */
+    public static String themeSignature(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getString(PREF_THEME_MODE, MODE_AUTO) + "|" + sp.getString(PREF_ACCENT, ACCENT_DEFAULT);
+    }
+
     /** The user's accent, independent of mode (purple/teal/link). */
     public static String accent(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
@@ -85,8 +93,10 @@ public class ThemeUtils {
     public static int accentOverlayId(Context context) {
         if (isDynamic(context)) return 0;
         String a = accent(context);
-        if (ACCENT_TEAL.equals(a)) return R.style.AccentOverlay_Teal;
+        if (ACCENT_BLUE.equals(a)) return R.style.AccentOverlay_Blue;
         if (ACCENT_LINK.equals(a)) return R.style.AccentOverlay_Link;
+        if (ACCENT_BROWN.equals(a)) return R.style.AccentOverlay_Brown;
+        if (ACCENT_SLATE.equals(a)) return R.style.AccentOverlay_Slate;
         return R.style.AccentOverlay_Purple;
     }
 

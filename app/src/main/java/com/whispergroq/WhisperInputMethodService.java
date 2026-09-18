@@ -100,6 +100,10 @@ public class WhisperInputMethodService extends InputMethodService {
     }
 
     private PopupWindow punctuationPopup;
+    /** Signature of theme mode+accent at the time the input view was inflated. */
+    private String lastThemeSignature = "";
+    /** Currently inflated input view (for instant theme rebuilds). */
+    private View mInputView;
 
     @Override
     public void onCreate() {
@@ -127,6 +131,14 @@ public class WhisperInputMethodService extends InputMethodService {
         if (btnPunctuation != null) {
             boolean showPunctuation = sp.getBoolean("show_punctuation", true);
             btnPunctuation.setVisibility(showPunctuation ? View.VISIBLE : View.GONE);
+        }
+        // Instant theme/accent change: if the user changed theme mode or accent
+        // in Settings (while this IME stayed alive), rebuild the input view NOW.
+        String signature = ThemeUtils.themeSignature(this);
+        if (mInputView != null && !signature.equals(lastThemeSignature)) {
+            lastThemeSignature = signature;
+            mInputView = onCreateInputView();
+            setInputView(mInputView);
         }
     }
 
@@ -160,6 +172,8 @@ public class WhisperInputMethodService extends InputMethodService {
         themedContext = ThemeUtils.wrapAccentIfNeeded(base);
         themedContext = ThemeUtils.wrapDynamicIfNeeded(themedContext);
         View view = LayoutInflater.from(themedContext).inflate(R.layout.voice_service, null);
+        mInputView = view;
+        lastThemeSignature = ThemeUtils.themeSignature(this);
 
         // WORKAROUND: with a 3-button navigation bar in PORTRAIT, the soft-input
         // window is configured by the framework to NOT apply the bottom inset

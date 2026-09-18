@@ -22,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,7 +32,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.whispergroq.asr.Recorder;
 import com.whispergroq.asr.Whisper;
 import com.whispergroq.asr.WhisperResult;
@@ -56,9 +56,6 @@ public class MainActivity extends AppCompatActivity {
     private Whisper mWhisper = null;
     private SharedPreferences sp = null;
     private CountDownTimer countDownTimer;
-    /** First-run sequencing: keyboard invite waits for the mic dialog. */
-    private boolean pendingImeInvite = false;
-    private boolean permissionDialogUp = false;
 
     @Override
     protected void onDestroy() {
@@ -124,6 +121,11 @@ public class MainActivity extends AppCompatActivity {
         tvResult = findViewById(R.id.tvResult);
         tvResult.setOnClickListener(view -> tvResult.setCursorVisible(true));
 
+        // Tooltip balloon for the "Keep text" info icon
+        ImageButton infoAppend = findViewById(R.id.infoAppend);
+        infoAppend.setOnClickListener(v ->
+                com.whispergroq.utils.InfoTooltip.show(this, v, R.string.append_hint));
+
         fabCopy = findViewById(R.id.fabCopy);
         fabCopy.setOnClickListener(v -> {
             String textToCopy = tvResult.getText().toString().trim();
@@ -157,11 +159,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * First-run flow, strictly one prompt at a time:
-     * 1. microphone permission dialog (system),
-     * 2. only AFTER it is granted → snackbar inviting the user to enable
-     *    the keyboard in system settings (snackbar, not a dialog, so the
-     *    user can dismiss it and keep using the app; no overlapping UI).
+     * First-run flow: the IME invite is a PERSISTENT banner (no timing race
+     * with the mic permission dialog — the banner stays until the keyboard
+     * is enabled or the app closes).
      */
     private void checkInputMethodEnabled() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -171,43 +171,20 @@ public class MainActivity extends AppCompatActivity {
         for (InputMethodInfo imi : enabledInputMethodList) {
             if (imi.getId().equals(myInputMethodId)) { enabled = true; break; }
         }
+        LinearLayout banner = findViewById(R.id.bannerIme);
+        banner.setVisibility(enabled ? View.GONE : View.VISIBLE);
         if (!enabled) {
-            // Defer the invite until the mic permission dialog is answered.
-            pendingImeInvite = true;
+            findViewById(R.id.btnEnableIme).setOnClickListener(v ->
+                    startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)));
         }
-    }
-
-    /** Shows the "enable keyboard" snackbar once no permission dialog is up. */
-    private void maybeShowImeInvite() {
-        if (permissionDialogUp || !pendingImeInvite) return;
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        for (InputMethodInfo imi : imm.getEnabledInputMethodList()) {
-            if (imi.getId().equals(getPackageName() + "/.WhisperInputMethodService")) {
-                pendingImeInvite = false;
-                return;
-            }
-        }
-        pendingImeInvite = false;
-        Snackbar.make(findViewById(android.R.id.content), R.string.ime_not_enabled, Snackbar.LENGTH_LONG)
-                .setAction(R.string.ime_enable_action, v ->
-                        startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)))
-                .show();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Covers: mic already granted (no dialog needed), and returning
-        // from the system keyboard settings (invite consumed, IME enabled).
-        maybeShowImeInvite();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        permissionDialogUp = false;
-        // Microphone dialog answered → now the keyboard invite may show.
-        maybeShowImeInvite();
+        // Re-check on every resume: the banner hides itself as soon as the
+        // user enables the keyboard in system settings and comes back.
+        checkInputMethodEnabled();
     }
 
     private void initWhisper() {
@@ -252,9 +229,6 @@ public class MainActivity extends AppCompatActivity {
             perms.add(Manifest.permission.BLUETOOTH_CONNECT);
         }
         if (!perms.isEmpty()) {
-            // One prompt at a time: while the mic dialog is up, the keyboard
-            // invite stays suppressed (shown in onRequestPermissionsResult).
-            permissionDialogUp = true;
             requestPermissions(perms.toArray(new String[]{}), 0);
             return false;
         }

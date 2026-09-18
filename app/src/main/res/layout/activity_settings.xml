@@ -37,11 +37,13 @@
                 android:textColor="?attr/colorOnSurface"
                 android:text="@string/settings_accent_label" />
 
-            <Spinner
-                android:id="@+id/spinnerAccent"
+            <LinearLayout
+                android:id="@+id/accentRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical" />
 
             <!-- ============ Groq API ============ -->
             <TextView
@@ -68,10 +70,16 @@
                     android:textColor="?attr/colorOnSurface"
                     android:text="@string/settings_api_key_label" />
 
+                <Spinner
+                    android:id="@+id/spinnerKeyCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
                 <ImageButton
                     android:id="@+id/infoApiKey"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_marginStart="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_info_48dp"
                     android:scaleType="fitCenter"
@@ -84,6 +92,24 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="gsk_..."
+                android:inputType="textPassword" />
+
+            <EditText
+                android:id="@+id/editApiKey2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"
+                android:hint="gsk_... (2)"
+                android:inputType="textPassword" />
+
+            <EditText
+                android:id="@+id/editApiKey3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"
+                android:hint="gsk_... (3)"
                 android:inputType="textPassword" />
 
             <TextView
@@ -180,7 +206,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:valueFrom="5"
-                android:valueTo="300"
+                android:valueTo="600"
                 android:stepSize="5"
                 app:labelBehavior="gone" />
 
@@ -191,6 +217,14 @@
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary"
                 android:text="@string/settings_max_recording_hint" />
+
+            <CheckBox
+                android:id="@+id/toggleNoLimit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/settings_no_limit"
+                android:textSize="14sp" />
 
             <!-- Bluetooth -->
             <CheckBox

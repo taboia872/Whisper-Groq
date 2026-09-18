@@ -64,11 +64,29 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
         params.gravity = Gravity.BOTTOM;
         getWindow().setAttributes(params);
 
+        // Same 3-button nav-bar workaround as the IME: the window extends to
+        // the physical bottom of the screen, so pad the root by the nav-bar
+        // height in portrait — otherwise the bottom of the box (record button)
+        // renders BEHIND the Android nav buttons ("cut off").
+        View root = findViewById(android.R.id.content);
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            boolean portrait = getResources().getConfiguration().orientation
+                    == android.content.res.Configuration.ORIENTATION_PORTRAIT;
+            int bottom = portrait
+                    ? insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars()).bottom
+                    : 0;
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottom);
+            return androidx.core.view.WindowInsetsCompat.CONSUMED;
+        });
+
         btnCancel = findViewById(R.id.btnCancel);
         btnStop = findViewById(R.id.btnStop);
         btnRecord = findViewById(R.id.btnRecord);
         btnModeAuto = findViewById(R.id.btnModeAuto);
         processingBar = findViewById(R.id.processing_bar);
+        // Only visible while recording/transcribing — kills the empty white
+        // strip the dialog showed at rest.
+        processingBar.setVisibility(View.GONE);
 
         modeAuto = sp.getBoolean("imeModeAuto", false);
         btnModeAuto.setImageResource(modeAuto ? R.drawable.ic_auto_on_36dp : R.drawable.ic_auto_off_36dp);
@@ -145,7 +163,10 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
 
     private void startCountdown() {
         if (countDownTimer != null) countDownTimer.cancel();
-        runOnUiThread(() -> processingBar.setProgress(100));
+        runOnUiThread(() -> {
+            processingBar.setVisibility(View.VISIBLE);
+            processingBar.setProgress(100);
+        });
         countDownTimer = new CountDownTimer(30000, 1000) {
             @Override
             public void onTick(long l) {
@@ -246,6 +267,7 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
     private void startTranscription() {
         if (countDownTimer != null) countDownTimer.cancel();
         runOnUiThread(() -> {
+            processingBar.setVisibility(View.VISIBLE);
             processingBar.setProgress(0);
             processingBar.setIndeterminate(true);
         });

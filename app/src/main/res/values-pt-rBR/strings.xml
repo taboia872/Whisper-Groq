@@ -3,7 +3,8 @@
     <string name="voice_input">Entrada de voz Whisper-Groq</string>
     <string name="need_record_audio_permission">Permissão RECORD_AUDIO não concedida</string>
     <string name="status">Status:</string>
-    <string name="append">Anexar:</string>
+    <string name="append">Manter texto</string>
+    <string name="append_hint">Marque a caixa para que o texto não seja substituído: novas transcrições serão adicionadas ao final do texto atual.</string>
     <string name="copy_to_clipboard">Copiar</string>
     <string name="processing">Processando…</string>
     <string name="processing_done_short">Pronto</string>
@@ -17,13 +18,15 @@
     <string name="error_no_input">Nenhuma entrada de voz</string>
     <string name="settings">Configurações</string>
     <string name="settings_groq">API Groq</string>
-    <string name="settings_api_key_hint">Obtenha a chave em console.groq.com. Fica criptografada localmente.</string>
+    <string name="settings_api_key_hint">Obtenha a chave em <a href="https://console.groq.com/keys">console.groq.com</a>. Fica criptografada localmente.</string>
     <string name="settings_api_key_label">Chave da API</string>
+    <string name="settings_api_key_count">Chaves</string>
     <string name="settings_model">Modelo Whisper</string>
     <string name="settings_general">Geral</string>
     <string name="settings_minimum_silence">Silêncio mínimo (ms)</string>
     <string name="settings_max_recording">Tempo máximo de gravação (segundos)</string>
-    <string name="settings_max_recording_hint">5–300 segundos. A Groq aceita mais, mas sessões longas gastam mais créditos.</string>
+    <string name="settings_max_recording_hint">5–600 segundos. A Groq aceita mais, mas sessões longas gastam mais créditos.</string>
+    <string name="settings_no_limit">Sem limite de tempo (parar manualmente)</string>
     <string name="settings_buttons">Botões do teclado</string>
     <string name="toggle_punctuation">Mostrar botão de pontuação</string>
     <string name="toggle_keyboard_button">Mostrar botão "voltar para teclado"</string>
@@ -37,8 +40,10 @@
     <string name="theme_dynamic">Dinâmico</string>
     <string name="settings_accent_label">Cor</string>
     <string name="accent_purple">Roxo</string>
-    <string name="accent_teal">Teal</string>
+    <string name="accent_blue">Azul</string>
     <string name="accent_link">Rosa bebê</string>
+    <string name="accent_brown">Marrom</string>
+    <string name="accent_slate">Cinza azulado</string>
     <string name="status_connected">Conectado</string>
     <string name="status_processing">Processando…</string>
     <string name="status_error_unknown">Erro desconhecido</string>

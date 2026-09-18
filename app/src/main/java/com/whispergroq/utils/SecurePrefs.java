@@ -101,6 +101,29 @@ public class SecurePrefs {
         setActiveKeyIndex(ctx, next);
     }
 
+    /**
+     * Round-robin per request: advance to the NEXT key different from the one
+     * used in the previous transcription, and return it. Used by Whisper.start()
+     * so consecutive requests never use the same key (user request 2026-09-18).
+     */
+    public static String pickNextApiKey(Context ctx) {
+        int count = getKeyCount(ctx);
+        int prev = getActiveKeyIndex(ctx);
+        int next = (prev + 1) % count;
+        setActiveKeyIndex(ctx, next);
+        String key = getApiKey(ctx, next);
+        if (key == null || key.isEmpty()) {
+            // Slot empty — fall back to previous slot key if it exists.
+            String prevKey = getApiKey(ctx, prev);
+            if (prevKey != null && !prevKey.isEmpty()) {
+                setActiveKeyIndex(ctx, prev);
+                return prevKey;
+            }
+            return "";
+        }
+        return key;
+    }
+
     /** Clear the active slot and go to next. */
     public static void clearActiveApiKey(Context ctx) {
         setApiKey(ctx, getActiveKeyIndex(ctx), "");

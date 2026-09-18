@@ -172,8 +172,15 @@ public class Recorder {
         int audioSource = MediaRecorder.AudioSource.VOICE_RECOGNITION;
 
         int maxSeconds = sp.getInt("max_recording_seconds", 60); // default 60s
-        if (maxSeconds < 5) maxSeconds = 5;
-        if (maxSeconds > 300) maxSeconds = 300; // API cap: ~4h, but we keep it sane
+        boolean noLimit = sp.getBoolean("no_recording_limit", false);
+        if (noLimit) {
+            // Manual stop only — cap only by memory sanity (2 GB hard ceiling
+            // is unreachable on phones; 16 kHz mono 16-bit = 32 kB/s).
+            maxSeconds = 3600 * 4;
+        } else {
+            if (maxSeconds < 5) maxSeconds = 5;
+            if (maxSeconds > 600) maxSeconds = 600;
+        }
 
         int maxBytes = sampleRateInHz * bytesPerSample * channels * maxSeconds;
 

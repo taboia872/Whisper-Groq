@@ -95,8 +95,13 @@ public class Whisper {
                 return;
             }
 
-            String apiKey = com.whispergroq.utils.SecurePrefs.getApiKey(mContext);
+            // Round-robin: each transcription uses the NEXT configured key
+            // (user request: never repeat the key used in the last request).
+            String apiKey = com.whispergroq.utils.SecurePrefs.pickNextApiKey(mContext);
             if (apiKey.isEmpty()) {
+                apiKey = com.whispergroq.utils.SecurePrefs.getApiKey(mContext);
+            }
+            if (apiKey == null || apiKey.isEmpty()) {
                 updateStatus("ERROR", "API key não configurada");
                 sendUpdate("ERROR: Groq API key not configured. Open settings.");
                 return;

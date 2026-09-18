@@ -13,14 +13,33 @@
         <item name="colorPrimaryVariant">@color/colorAccentDark</item>
     </style>
 
-    <style name="AccentOverlay.Teal" parent="">
-        <item name="colorPrimary">@color/accent_teal</item>
-        <item name="colorOnPrimary">@color/on_accent_teal</item>
-        <item name="colorPrimaryContainer">@color/container_teal</item>
-        <item name="colorOnPrimaryContainer">@color/on_container_teal</item>
-        <item name="colorSecondary">@color/accent_teal</item>
-        <item name="colorPrimaryVariant">@color/accent_teal_dark</item>
+    <style name="AccentOverlay.Blue" parent="">
+        <item name="colorPrimary">@color/accent_blue</item>
+        <item name="colorOnPrimary">@color/on_accent_blue</item>
+        <item name="colorPrimaryContainer">@color/container_blue</item>
+        <item name="colorOnPrimaryContainer">@color/on_container_blue</item>
+        <item name="colorSecondary">@color/accent_blue</item>
+        <item name="colorPrimaryVariant">@color/accent_blue_dark</item>
     </style>
+
+    <style name="AccentOverlay.Brown" parent="">
+        <item name="colorPrimary">@color/accent_brown</item>
+        <item name="colorOnPrimary">@color/on_accent_brown</item>
+        <item name="colorPrimaryContainer">@color/container_brown</item>
+        <item name="colorOnPrimaryContainer">@color/on_container_brown</item>
+        <item name="colorSecondary">@color/accent_brown</item>
+        <item name="colorPrimaryVariant">@color/accent_brown_dark</item>
+    </style>
+
+    <style name="AccentOverlay.Slate" parent="">
+        <item name="colorPrimary">@color/accent_slate</item>
+        <item name="colorOnPrimary">@color/on_accent_slate</item>
+        <item name="colorPrimaryContainer">@color/container_slate</item>
+        <item name="colorOnPrimaryContainer">@color/on_container_slate</item>
+        <item name="colorSecondary">@color/accent_slate</item>
+        <item name="colorPrimaryVariant">@color/accent_slate_dark</item>
+    </style>
+
 
     <style name="AccentOverlay.Link" parent="">
         <item name="colorPrimary">@color/accent_link</item>
