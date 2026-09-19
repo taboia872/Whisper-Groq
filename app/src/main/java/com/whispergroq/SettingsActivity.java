@@ -374,6 +374,9 @@ public class SettingsActivity extends AppCompatActivity {
         field.setMinLines(1);
         field.setMaxLines(3);
         field.setSingleLine(false);
+        // Multi-line password fields don't mask by default — force the
+        // PasswordTransformationMethod so keys show as dots again.
+        field.setTransformationMethod(android.text.method.PasswordTransformationMethod.getInstance());
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = dp(this, 4);
