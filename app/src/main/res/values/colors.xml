@@ -32,12 +32,12 @@
     <color name="on_accent_link">#FFFFFF</color>
     <color name="container_link">#FFD9E4</color>
     <color name="on_container_link">#590D2B</color>
-    <!-- Brown 5D4037 -->
-    <color name="accent_brown">#5D4037</color>
-    <color name="accent_brown_dark">#3E2723</color>
-    <color name="on_accent_brown">#FFFFFF</color>
-    <color name="container_brown">#EFCCDC</color>
-    <color name="on_container_brown">#442B23</color>
+    <!-- Orange -->
+    <color name="accent_orange">#EF6C00</color>
+    <color name="accent_orange_dark">#E65100</color>
+    <color name="on_accent_orange">#FFFFFF</color>
+    <color name="container_orange">#FFE0B2</color>
+    <color name="on_container_orange">#4A2800</color>
     <!-- Blue grey 455A64 -->
     <color name="accent_slate">#455A64</color>
     <color name="accent_slate_dark">#263238</color>

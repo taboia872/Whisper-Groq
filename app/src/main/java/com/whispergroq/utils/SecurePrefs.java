@@ -44,14 +44,17 @@ public class SecurePrefs {
 
     // ---------- Multi-key support ----------
 
-    /** How many keys are configured (1-3). */
+    /** How many keys are configured. */
     public static int getKeyCount(Context ctx) {
         return getSecure(ctx).getInt("api_key_count", 1);
     }
 
-    /** Set number of key slots (1-3). Each is secured in EncryptedSharedPreferences. */
+    /** Maximum stored key slots (round-robin guard). */
+    public static final int MAX_KEYS = 10;
+
+    /** Set number of key slots. Each is secured in EncryptedSharedPreferences. */
     public static void setKeyCount(Context ctx, int count) {
-        int c = Math.max(1, Math.min(3, count));
+        int c = Math.max(1, Math.min(MAX_KEYS, count));
         getSecure(ctx).edit().putInt("api_key_count", c).apply();
     }
 

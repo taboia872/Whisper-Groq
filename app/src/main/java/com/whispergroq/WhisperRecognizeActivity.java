@@ -163,14 +163,30 @@ public class WhisperRecognizeActivity extends AppCompatActivity {
 
     private void startCountdown() {
         if (countDownTimer != null) countDownTimer.cancel();
+        boolean noLimit = sp.getBoolean("no_recording_limit", false);
+        int maxSeconds = sp.getInt("max_recording_seconds", 60);
+        if (maxSeconds < 5) maxSeconds = 5;
+        if (maxSeconds > 600) maxSeconds = 600;
+        long totalMs = noLimit ? 3600_000L * 4 : maxSeconds * 1000L;
         runOnUiThread(() -> {
             processingBar.setVisibility(View.VISIBLE);
-            processingBar.setProgress(100);
+            if (noLimit) {
+                // Unlimited: indeterminate bar (does not shrink over time).
+                processingBar.setIndeterminate(true);
+                processingBar.setProgress(0);
+            } else {
+                processingBar.setIndeterminate(false);
+                processingBar.setProgress(100);
+            }
         });
-        countDownTimer = new CountDownTimer(30000, 1000) {
+        final int cap = noLimit ? 0 : maxSeconds;
+        countDownTimer = new CountDownTimer(totalMs, 1000) {
             @Override
             public void onTick(long l) {
-                runOnUiThread(() -> processingBar.setProgress((int) (l / 300)));
+                if (cap > 0) {
+                    int pct = (int) (l * 100 / (cap * 1000L));
+                    runOnUiThread(() -> processingBar.setProgress(pct));
+                }
             }
             @Override
             public void onFinish() {}

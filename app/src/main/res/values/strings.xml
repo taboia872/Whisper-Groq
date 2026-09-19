@@ -23,12 +23,10 @@
     <string name="settings_groq">Groq API</string>
     <string name="settings_api_key_hint">Get your key at <a href="https://console.groq.com/keys">console.groq.com</a> — stored locally, only used for the API call.</string>
     <string name="settings_api_key_label">API key</string>
-    <string name="settings_api_key_count">Keys</string>
     <string name="settings_model">Whisper model</string>
     <string name="settings_general">General</string>
     <string name="settings_minimum_silence">Minimum silence in automatic mode (ms)</string>
     <string name="settings_max_recording">Maximum recording time (seconds)</string>
-    <string name="settings_max_recording_hint">5–600 seconds. Groq accepts much longer, but longer sessions burn more API credits.</string>
     <string name="settings_no_limit">No time limit (manual stop only)</string>
     <string name="settings_buttons">Buttons</string>
     <string name="toggle_punctuation">Show punctuation button</string>
@@ -46,7 +44,7 @@
     <string name="accent_purple">Purple</string>
     <string name="accent_blue">Blue</string>
     <string name="accent_link">Baby pink</string>
-    <string name="accent_brown">Brown</string>
+    <string name="accent_orange">Orange</string>
     <string name="accent_slate">Blue grey</string>
     <string name="status_connected">Conectado</string>
     <string name="status_processing">Processando…</string>

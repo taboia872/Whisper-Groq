@@ -28,7 +28,7 @@ public class ThemeUtils {
     public static final String ACCENT_PURPLE = "purple";
     public static final String ACCENT_BLUE = "blue";
     public static final String ACCENT_LINK = "link";
-    public static final String ACCENT_BROWN = "brown";
+    public static final String ACCENT_ORANGE = "orange";
     public static final String ACCENT_SLATE = "slate";
     public static final String ACCENT_DEFAULT = ACCENT_PURPLE;
 
@@ -95,7 +95,7 @@ public class ThemeUtils {
         String a = accent(context);
         if (ACCENT_BLUE.equals(a)) return R.style.AccentOverlay_Blue;
         if (ACCENT_LINK.equals(a)) return R.style.AccentOverlay_Link;
-        if (ACCENT_BROWN.equals(a)) return R.style.AccentOverlay_Brown;
+        if (ACCENT_ORANGE.equals(a)) return R.style.AccentOverlay_Orange;
         if (ACCENT_SLATE.equals(a)) return R.style.AccentOverlay_Slate;
         return R.style.AccentOverlay_Purple;
     }

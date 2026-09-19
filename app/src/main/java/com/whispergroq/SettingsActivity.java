@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -35,6 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "SettingsActivity";
 
     private SharedPreferences sp = null;
+    private LinearLayout keyList;
     private final String[] MODELS = {
             "whisper-large-v3-turbo",
             "whisper-large-v3",
@@ -63,43 +66,13 @@ public class SettingsActivity extends AppCompatActivity {
             sp.edit().remove("groq_api_key").apply();
         }
 
-        // API Keys (encrypted, up to 3 slots — round-robin per transcription)
-        final EditText[] keyFields = {
-                findViewById(R.id.editApiKey),
-                findViewById(R.id.editApiKey2),
-                findViewById(R.id.editApiKey3)
-        };
-        for (int i = 0; i < 3; i++) {
-            String k = com.whispergroq.utils.SecurePrefs.getApiKey(this, i);
-            keyFields[i].setText(k != null ? k : "");
+        // API Keys (encrypted, dynamic list with '+' — round-robin per transcription)
+        keyList = findViewById(R.id.keyList);
+        int savedCount = com.whispergroq.utils.SecurePrefs.getKeyCount(this);
+        for (int i = 0; i < savedCount; i++) {
+            addKeyField(i, com.whispergroq.utils.SecurePrefs.getApiKey(this, i));
         }
-        Spinner spinnerKeyCount = findViewById(R.id.spinnerKeyCount);
-        Integer[] counts = {1, 2, 3};
-        ArrayAdapter<Integer> countAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, counts);
-        countAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerKeyCount.setAdapter(countAdapter);
-        int keyCount = com.whispergroq.utils.SecurePrefs.getKeyCount(this);
-        spinnerKeyCount.setSelection(Math.max(0, Math.min(2, keyCount - 1)));
-        final Runnable[] showKeyFields = new Runnable[1];
-        showKeyFields[0] = () -> {
-            int n = com.whispergroq.utils.SecurePrefs.getKeyCount(this);
-            for (int i = 0; i < 3; i++) {
-                keyFields[i].setVisibility(i < n ? View.VISIBLE : View.GONE);
-            }
-        };
-        showKeyFields[0].run();
-        spinnerKeyCount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                int n = position + 1;
-                if (n != com.whispergroq.utils.SecurePrefs.getKeyCount(SettingsActivity.this)) {
-                    com.whispergroq.utils.SecurePrefs.setKeyCount(SettingsActivity.this, n);
-                    showKeyFields[0].run();
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
+        if (savedCount == 0) addKeyField(0, com.whispergroq.utils.SecurePrefs.getApiKey(this));
 
         ImageButton infoApiKey = findViewById(R.id.infoApiKey);
         infoApiKey.setOnClickListener(v -> {
@@ -166,12 +139,13 @@ public class SettingsActivity extends AppCompatActivity {
                         com.whispergroq.utils.ThemeUtils.MODE_AUTO);
                 if (!selected.equals(previous)) {
                     sp.edit().putString(com.whispergroq.utils.ThemeUtils.PREF_THEME_MODE, selected).apply();
-                    // Toggle the accent circles BEFORE recreating: in Dynamic
+                    // Toggle the color dropdown BEFORE recreating: in Dynamic
                     // mode the accent comes from the wallpaper. (Local lookup —
-                    // the accent row is declared later.)
-                    LinearLayout accentRowLocal = findViewById(R.id.accentRow);
+                    // the spinnerColor is declared later.)
+                    Spinner colorSpinner = findViewById(R.id.spinnerColor);
                     boolean dyn = com.whispergroq.utils.ThemeUtils.MODE_AUTO_DYNAMIC.equals(selected);
-                    applyAccentRowEnabled(accentRowLocal, !dyn);
+                    colorSpinner.setEnabled(!dyn);
+                    colorSpinner.setAlpha(dyn ? 0.4f : 1.0f);
                     // Apply immediately so the user sees the change, then recreate.
                     com.whispergroq.utils.ThemeUtils.applyTheme(SettingsActivity.this);
                 }
@@ -180,21 +154,49 @@ public class SettingsActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // Accent color picker: row of colored circles (tap to select).
-        // Grayed out in Dynamic mode (colors come from the wallpaper).
+        // Accent color: compact dropdown on the SAME LINE as the theme spinner
+        // (color swatch + name), grayed out in Dynamic mode.
+        Spinner spinnerColor = findViewById(R.id.spinnerColor);
         final String[] ACCENTS = {
                 com.whispergroq.utils.ThemeUtils.ACCENT_PURPLE,
                 com.whispergroq.utils.ThemeUtils.ACCENT_BLUE,
                 com.whispergroq.utils.ThemeUtils.ACCENT_LINK,
-                com.whispergroq.utils.ThemeUtils.ACCENT_BROWN,
+                com.whispergroq.utils.ThemeUtils.ACCENT_ORANGE,
                 com.whispergroq.utils.ThemeUtils.ACCENT_SLATE
         };
-        LinearLayout accentRow = findViewById(R.id.accentRow);
-        android.widget.ImageView[] accentCircles = buildAccentCircles(ACCENTS);
-        for (android.widget.ImageView c : accentCircles) accentRow.addView(c);
-
-        // In Dynamic mode the accent comes from the wallpaper — gray out the row.
-        applyAccentRowEnabled(accentRow, !com.whispergroq.utils.ThemeUtils.isDynamic(this));
+        int[] accentSwatches = {
+                R.color.accent_purple, R.color.accent_blue, R.color.accent_link,
+                R.color.accent_orange, R.color.accent_slate
+        };
+        String[] accentNames = {
+                getString(R.string.accent_purple), getString(R.string.accent_blue),
+                getString(R.string.accent_link), getString(R.string.accent_orange),
+                getString(R.string.accent_slate)
+        };
+        ColorSwatchAdapter colorAdapter = new ColorSwatchAdapter(this, ACCENTS, accentSwatches, accentNames);
+        spinnerColor.setAdapter(colorAdapter);
+        String currentAccent = com.whispergroq.utils.ThemeUtils.accent(this);
+        int colorIndex = 0;
+        for (int i = 0; i < ACCENTS.length; i++) {
+            if (ACCENTS[i].equals(currentAccent)) { colorIndex = i; break; }
+        }
+        spinnerColor.setSelection(colorIndex);
+        spinnerColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = ACCENTS[position];
+                String previous = com.whispergroq.utils.ThemeUtils.accent(SettingsActivity.this);
+                if (!selected.equals(previous)) {
+                    sp.edit().putString(com.whispergroq.utils.ThemeUtils.PREF_ACCENT, selected).apply();
+                    com.whispergroq.utils.ThemeUtils.applyTheme(SettingsActivity.this);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        boolean dyn = com.whispergroq.utils.ThemeUtils.isDynamic(this);
+        spinnerColor.setEnabled(!dyn);
+        spinnerColor.setAlpha(dyn ? 0.4f : 1.0f);
 
         // Silence slider (Material 3)
         Slider minSilence = findViewById(R.id.settings_min_silence);
@@ -267,15 +269,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Persist all visible key fields on leaving the screen.
-        int n = com.whispergroq.utils.SecurePrefs.getKeyCount(this);
-        int[] ids = {R.id.editApiKey, R.id.editApiKey2, R.id.editApiKey3};
-        for (int i = 0; i < n && i < 3; i++) {
-            EditText f = findViewById(ids[i]);
-            if (f != null) {
-                com.whispergroq.utils.SecurePrefs.setApiKey(this, i, f.getText().toString().trim());
-            }
-        }
+        // Persist all key fields on leaving the screen.
+        saveKeyFields();
     }
 
     private void checkPermissions() {
@@ -316,54 +311,96 @@ public class SettingsActivity extends AppCompatActivity {
                 android.util.TypedValue.COMPLEX_UNIT_DIP, v, c.getResources().getDisplayMetrics()));
     }
 
-    /** Builds the row of accent circles (purple, blue, pink, brown, slate). */
-    private android.widget.ImageView[] buildAccentCircles(final String[] accents) {
-        String current = com.whispergroq.utils.ThemeUtils.accent(this);
-        android.widget.ImageView[] out = new android.widget.ImageView[accents.length];
-        int size = dp(this, 36);
-        int margin = dp(this, 10);
-        int[][] palette = {
-                {R.color.accent_purple, R.color.container_purple},
-                {R.color.accent_blue, R.color.container_blue},
-                {R.color.accent_link, R.color.container_link},
-                {R.color.accent_brown, R.color.container_brown},
-                {R.color.accent_slate, R.color.container_slate}
-        };
-        for (int i = 0; i < accents.length; i++) {
-            final String accent = accents[i];
-            android.widget.ImageView c = new android.widget.ImageView(this);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
-            if (i > 0) lp.leftMargin = margin;
-            c.setLayoutParams(lp);
-            boolean selected = accent.equals(current);
-            // Oval fill + ring when selected, plain fill otherwise.
+    /** Spinner adapter: color swatch circle + accent name. */
+    private static class ColorSwatchAdapter extends ArrayAdapter<String> {
+        private final int[] swatches;
+        private final String[] names;
+
+        ColorSwatchAdapter(Context ctx, String[] accents, int[] swatches, String[] names) {
+            super(ctx, android.R.layout.simple_spinner_item, names);
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            this.swatches = swatches;
+            this.names = names;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return row(getContext(), position);
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return row(getContext(), position);
+        }
+
+        private View row(Context ctx, int position) {
+            LinearLayout row = new LinearLayout(ctx);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            int pad = dp(ctx, 8);
+            row.setPadding(pad, pad, pad, pad);
+
+            android.widget.ImageView sw = new android.widget.ImageView(ctx);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(ctx, 20), dp(ctx, 20));
+            sw.setLayoutParams(lp);
             android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable();
             g.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-            g.setColor(ContextCompat.getColor(this, palette[i][0]));
-            if (selected) {
-                g.setStroke(dp(this, 3), ContextCompat.getColor(this, R.color.text_primary));
-            }
-            c.setImageDrawable(g);
-            c.setOnClickListener(v -> {
-                sp.edit().putString(com.whispergroq.utils.ThemeUtils.PREF_ACCENT, accent).apply();
-                com.whispergroq.utils.ThemeUtils.applyTheme(SettingsActivity.this);
-            });
-            String[] names = {getString(R.string.accent_purple), getString(R.string.accent_blue),
-                    getString(R.string.accent_link), getString(R.string.accent_brown),
-                    getString(R.string.accent_slate)};
-            c.setContentDescription(names[i]);
-            out[i] = c;
+            g.setColor(ContextCompat.getColor(ctx, swatches[position]));
+            sw.setImageDrawable(g);
+            row.addView(sw);
+
+            TextView tv = new TextView(ctx);
+            tv.setText(names[position]);
+            tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+            tv.setPadding(dp(ctx, 8), 0, 0, 0);
+            row.addView(tv);
+            return row;
         }
-        return out;
     }
 
-    /** Enables/disables (and grays) the accent row — Dynamic mode. */
-    private void applyAccentRowEnabled(LinearLayout row, boolean enabled) {
-        row.setEnabled(enabled);
-        row.setAlpha(enabled ? 1.0f : 0.4f);
-        for (int i = 0; i < row.getChildCount(); i++) {
-            row.getChildAt(i).setEnabled(enabled);
-            row.getChildAt(i).setAlpha(enabled ? 1.0f : 0.4f);
+    /** Adds a multi-line text area for an API key slot. The last field always
+     *  gets a '+' button below it to append another slot. */
+    private void addKeyField(int index, String savedKey) {
+        // remove any existing '+' button first
+        if (keyList.getChildCount() > 0) {
+            View last = keyList.getChildAt(keyList.getChildCount() - 1);
+            if (last instanceof Button) keyList.removeView(last);
         }
+        EditText field = new EditText(this);
+        field.setHint("gsk_...");
+        field.setText(savedKey != null ? savedKey : "");
+        field.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        field.setMinLines(1);
+        field.setMaxLines(3);
+        field.setSingleLine(false);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(this, 4);
+        field.setLayoutParams(lp);
+        keyList.addView(field);
+        Button add = new Button(this, null, 0, com.google.android.material.R.attr.materialIconButtonStyle);
+        add.setText("+");
+        add.setOnClickListener(v -> {
+            saveKeyFields();
+            addKeyField(keyList.getChildCount(), "");
+        });
+        keyList.addView(add);
+    }
+
+    /** Persists all key fields to encrypted slots (only filled ones). */
+    private void saveKeyFields() {
+        int n = 0;
+        for (int i = 0; i < keyList.getChildCount(); i++) {
+            View c = keyList.getChildAt(i);
+            if (c instanceof EditText) {
+                String v = ((EditText) c).getText().toString().trim();
+                if (!v.isEmpty()) {
+                    com.whispergroq.utils.SecurePrefs.setApiKey(this, n, v);
+                    n++;
+                }
+            }
+        }
+        com.whispergroq.utils.SecurePrefs.setKeyCount(this, Math.max(1, n));
     }
 }

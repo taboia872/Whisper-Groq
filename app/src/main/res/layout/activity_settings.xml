@@ -23,27 +23,25 @@
                 android:textColor="?attr/colorPrimary"
                 android:text="@string/settings_theme" />
 
-            <Spinner
-                android:id="@+id/spinnerTheme"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:textSize="14sp"
-                android:textColor="?attr/colorOnSurface"
-                android:text="@string/settings_accent_label" />
-
             <LinearLayout
-                android:id="@+id/accentRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical" />
+                android:gravity="center_vertical">
+
+                <Spinner
+                    android:id="@+id/spinnerTheme"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content" />
+
+                <Spinner
+                    android:id="@+id/spinnerColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp" />
+            </LinearLayout>
 
             <!-- ============ Groq API ============ -->
             <TextView
@@ -70,47 +68,23 @@
                     android:textColor="?attr/colorOnSurface"
                     android:text="@string/settings_api_key_label" />
 
-                <Spinner
-                    android:id="@+id/spinnerKeyCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
                 <ImageButton
                     android:id="@+id/infoApiKey"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
-                    android:layout_marginStart="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_info_48dp"
                     android:scaleType="fitCenter"
                     android:contentDescription="@string/info" />
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/editApiKey"
+            <!-- Dynamic API key fields are added here (text areas with '+') -->
+            <LinearLayout
+                android:id="@+id/keyList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:hint="gsk_..."
-                android:inputType="textPassword" />
-
-            <EditText
-                android:id="@+id/editApiKey2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:visibility="gone"
-                android:hint="gsk_... (2)"
-                android:inputType="textPassword" />
-
-            <EditText
-                android:id="@+id/editApiKey3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:visibility="gone"
-                android:hint="gsk_... (3)"
-                android:inputType="textPassword" />
+                android:orientation="vertical" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -209,14 +183,6 @@
                 android:valueTo="600"
                 android:stepSize="5"
                 app:labelBehavior="gone" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:text="@string/settings_max_recording_hint" />
 
             <CheckBox
                 android:id="@+id/toggleNoLimit"

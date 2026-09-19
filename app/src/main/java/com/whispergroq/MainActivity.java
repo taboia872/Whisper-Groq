@@ -88,9 +88,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Accent overlay (purple/teal/link) on top of the manifest theme.
-        int overlayId = ThemeUtils.accentOverlayId(this);
-        if (overlayId != 0) getTheme().applyStyle(overlayId, true);
+        // Accent overlay (purple/blue/pink/orange/slate) on top of the manifest theme.
+        applyAccentOverlay();
         ThemeUtils.applyDynamicIfNeeded(this);
         mContext = this;
         setContentView(R.layout.activity_main);
@@ -179,12 +178,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Signature of theme prefs when the overlay was last applied here. */
+    private String lastThemeSignature = "";
+
+    /** Applies the accent overlay; safe to call repeatedly. */
+    private void applyAccentOverlay() {
+        int overlayId = ThemeUtils.accentOverlayId(this);
+        if (overlayId != 0) getTheme().applyStyle(overlayId, true);
+        lastThemeSignature = ThemeUtils.themeSignature(this);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         // Re-check on every resume: the banner hides itself as soon as the
         // user enables the keyboard in system settings and comes back.
         checkInputMethodEnabled();
+        // Accent changed in Settings while this activity was in the back
+        // stack? Re-apply instantly (no recreate needed for an overlay).
+        if (!ThemeUtils.themeSignature(this).equals(lastThemeSignature)) {
+            applyAccentOverlay();
+        }
     }
 
     private void initWhisper() {
@@ -245,11 +259,28 @@ public class MainActivity extends AppCompatActivity {
 
     private void startCountdown() {
         if (countDownTimer != null) countDownTimer.cancel();
-        runOnUiThread(() -> processingBar.setProgress(100));
-        countDownTimer = new CountDownTimer(30000, 1000) {
+        boolean noLimit = sp.getBoolean("no_recording_limit", false);
+        int maxSeconds = sp.getInt("max_recording_seconds", 60);
+        if (maxSeconds < 5) maxSeconds = 5;
+        if (maxSeconds > 600) maxSeconds = 600;
+        long totalMs = noLimit ? 3600_000L * 4 : maxSeconds * 1000L;
+        runOnUiThread(() -> {
+            if (noLimit) {
+                processingBar.setIndeterminate(true);
+                processingBar.setProgress(0);
+            } else {
+                processingBar.setIndeterminate(false);
+                processingBar.setProgress(100);
+            }
+        });
+        final int cap = noLimit ? 0 : maxSeconds;
+        countDownTimer = new CountDownTimer(totalMs, 1000) {
             @Override
             public void onTick(long l) {
-                runOnUiThread(() -> processingBar.setProgress((int) (l / 300)));
+                if (cap > 0) {
+                    int pct = (int) (l * 100 / (cap * 1000L));
+                    runOnUiThread(() -> processingBar.setProgress(pct));
+                }
             }
             @Override
             public void onFinish() {}
